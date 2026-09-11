@@ -467,10 +467,13 @@
     <h3>Pourquoi le régresseur de pose ne peut pas exister</h3>
     <p>Il suppose que la pose de sortie soit une <em>fonction de l'image</em>. Testé sur les
     42 objets en comparant les rotations obtenues pour trois graines de bruit sur la même
-    image : l'écart médian entre graines vaut <span class="num">140,5°</span> sur les objets
-    asymétriques et <span class="num">129,8°</span> sur les symétriques —
+    image : l'écart médian entre graines vaut <span class="num">131,8°</span> sur les objets
+    asymétriques et <span class="num">134,4°</span> sur les symétriques —
     <strong>1 objet sur 16 est stable</strong> chez les premiers, aucun sur 26 chez les
-    seconds. Corrélation asymétrie / stabilité : <span class="num">−0,073</span>.</p>
+    seconds. Corrélation asymétrie / stabilité : <span class="num">−0,124</span>. Ces médianes
+    bougent de quelques degrés d'une exécution du recalage à l'autre (relancé le 11 septembre :
+    131,8 et 134,4 contre 140,5 et 129,8 la première fois) ; la partition et ses comptes ne
+    bougent pas.</p>
     <p class="verdict-line"><strong>La pose n'est pas une grandeur stable du système : elle
     est rééchantillonnée avec le bruit.</strong> Aucun régresseur ne peut l'apprendre, non
     faute du bon estimateur, mais parce que la cible n'existe pas. C'est le résultat négatif

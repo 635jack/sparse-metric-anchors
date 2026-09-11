@@ -1,5 +1,5 @@
 {
-  "seuil_asymetrie": 0.06,
+  "seuil_asymetrie": 0.02,
   "seeds": [
     0,
     1,
@@ -430,15 +430,16 @@
   },
   "agrege": {
     "asymetriques": {
-      "n": 2,
-      "ecart_median_deg": 126.33030538625096,
-      "stables_sous_30": 0
-    },
-    "symetriques": {
-      "n": 40,
-      "ecart_median_deg": 134.41523834453426,
+      "n": 16,
+      "ecart_median_deg": 131.75066180264625,
       "stables_sous_30": 1
     },
-    "correlation_asymetrie_stabilite": -0.12416455773689344
+    "symetriques": {
+      "n": 26,
+      "ecart_median_deg": 134.41523834453426,
+      "stables_sous_30": 0
+    },
+    "correlation_asymetrie_stabilite": -0.12416455773689344,
+    "note": "Les m\u00e9dianes bougent de quelques degr\u00e9s d'une ex\u00e9cution du recalage \u00e0 l'autre (\u00e9chantillonnage al\u00e9atoire de l'ICP) ; la partition, les comptes d'objets stables et l'absence de relation asym\u00e9trie/stabilit\u00e9 ne bougent pas."
   }
 }

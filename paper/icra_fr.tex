@@ -229,10 +229,14 @@ l'image et le bruit produisent.
 imaginable serait de régresser la rotation de sortie depuis l'image, sans réentraîner
 le générateur. Il présuppose que la pose soit une fonction de l'image. En comparant les
 rotations obtenues pour trois graines de bruit sur la \emph{même} image, sur 42
-objets, l'écart médian entre graines vaut $140{,}5^\circ$ pour les objets asymétriques
-et $129{,}8^\circ$ pour les symétriques ; 1 objet asymétrique sur 16 est stable sous
+objets, l'écart médian entre graines vaut $131{,}8^\circ$ pour les objets asymétriques
+et $134{,}4^\circ$ pour les symétriques ; 1 objet asymétrique sur 16 est stable sous
 $30^\circ$, 0 sur 26 chez les symétriques ; la corrélation asymétrie / stabilité vaut
-$-0{,}073$. Le partage par symétrie écarte un artefact de mesure --- deux sorties
+$-0{,}124$. Répéter le recalage déplace ces médianes de quelques degrés --- il
+échantillonne des points au hasard, et sur un solide de révolution la rotation qu'il
+trouve est arbitraire --- mais pas la conclusion au niveau de la partition : les
+comptes d'objets stables et l'absence de toute relation asymétrie--stabilité sont
+inchangés d'une exécution à l'autre. Le partage par symétrie écarte un artefact de mesure --- deux sorties
 identiques d'un solide de révolution se recalent avec des rotations très différentes
 --- et les objets asymétriques, dont l'orientation est identifiable, ne sont \emph{pas
 plus stables}. Aucun régresseur ne peut apprendre cette pose : non faute du bon

@@ -214,9 +214,13 @@ the image and the noise produce.
 regress the output rotation from the image, with no retraining of the generator. It
 presumes that the pose is a function of the image. Comparing the rotations obtained for
 three noise seeds on the \emph{same} image, over 42 objects, the median inter-seed
-discrepancy is $140.5^\circ$ for asymmetric objects and $129.8^\circ$ for symmetric
+discrepancy is $131.8^\circ$ for asymmetric objects and $134.4^\circ$ for symmetric
 ones; 1 of 16 asymmetric objects is stable below $30^\circ$, 0 of 26 symmetric ones;
-the asymmetry/stability correlation is $-0.073$. The split by symmetry rules out a
+the asymmetry/stability correlation is $-0.124$. Repeating the registration moves
+these medians by several degrees --- it samples points at random, and on a solid of
+revolution the rotation it finds is arbitrary --- but not the split-level conclusion:
+the stable counts and the absence of any asymmetry--stability relation are unchanged
+between runs. The split by symmetry rules out a
 measurement artefact --- two identical outputs of a solid of revolution register with
 very different rotations --- and the asymmetric objects, whose orientation is
 identifiable, are \emph{no more stable}. No regressor can learn this pose: not for

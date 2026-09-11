@@ -80,8 +80,11 @@ def main():
     ap.add_argument("--data_dir", default="data/training_ycb")
     ap.add_argument("--mesh_dir", default="out/full42_combined")
     ap.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
-    ap.add_argument("--seuil", type=float, default=0.06,
-                    help="Asymétrie au-dessus de laquelle l'orientation est identifiable.")
+    ap.add_argument("--seuil", type=float, default=0.02,
+                    help="Asymétrie au-dessus de laquelle l'orientation est identifiable. "
+                         "0,02 est le seuil de la campagne du 13 août : il partage les 42 "
+                         "objets en 16 asymétriques et 26 symétriques. L'ancien défaut de "
+                         "0,06 n'en gardait que 2 et ne reproduisait pas le papier.")
     ap.add_argument("--out", default="pose_determinism.json",
                     help="Le papier cite 140,5° / 129,8° / 1 sur 16 / 0 sur 26 : ce fichier "
                          "est ce qui les porte. Sans lui, le script n'imprimait que.")

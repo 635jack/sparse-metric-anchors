@@ -96,13 +96,14 @@ pré-entraîné, et trouvons que ce n'est ni leur nombre, ni leur contenu, ni la
 l'objet qu'elles touchent. C'est le \emph{repère de sortie} du générateur. Sur un
 modèle de diffusion à latent d'ondelettes d'un milliard de paramètres, nous montrons
 que la pose de la forme générée n'est pas une fonction de l'image d'entrée : elle est
-rééchantillonnée avec la graine de bruit, et se déplace de $130^\circ$ en médiane
+rééchantillonnée avec la graine de bruit, et se déplace d'environ $135^\circ$ en médiane
 d'une graine à l'autre sur 42 objets YCB. Deux voies d'ancrage sont ensuite mesurées
 contre ce fait. Injecter des contacts comme contrainte différentiable pendant
 l'échantillonnage, sans entraînement, améliore le F-Score@2\% de $+3{,}21$ ($p =
 3{,}1\times10^{-4}$, test des signes), contre $+7{,}82$ lorsque le repère est donné :
-l'estimation du repère consomme 59 à 74~\% du gain atteignable, et 91~\% de la
-variance d'une exécution à l'autre. Ancrer le repère par conditionnement, en
+l'estimation du repère consomme 59 à 74~\% du gain atteignable, et, une fois le
+repère gelé, la passe ancrée est aussi reproductible que la passe non ancrée sur
+chaque objet testé. Ancrer le repère par conditionnement, en
 reprojetant une seule carte de profondeur dans les vues canoniques d'une variante
 multi-vues, fixe la pose à $\pm 2^\circ$ et gagne $+11{,}2$ en moyenne --- mais
 l'effet est bimodal, perdant $-22$ sur les solides de révolution, et aucun sélecteur
@@ -151,7 +152,7 @@ deux ensemble localisent le problème.
 \begin{enumerate}
   \item \textbf{La pose de sortie d'un modèle de diffusion 3D mono-vue n'est pas
   apprenable depuis son entrée} : sur trois graines de bruit et la même image, elle se
-  déplace de $130^\circ$ en médiane sur 42 objets, les objets asymétriques n'étant pas
+  déplace d'environ $135^\circ$ en médiane sur 42 objets, les objets asymétriques n'étant pas
   plus stables que les symétriques (Sec.~\ref{sec:frame}).
   \item Un \textbf{schéma d'ancrage par contrainte sans entraînement}, différentiable
   de bout en bout à l'échantillonnage, et la mesure de ce que le repère lui coûte :
@@ -166,7 +167,8 @@ deux ensemble localisent le problème.
   comptent, tandis que le nombre, les normales et la visibilité ne comptent pas
   (Sec.~\ref{sec:res-anchor}).
   \item Une \textbf{décomposition de la variance} d'une exécution à l'autre, montrant
-  que 91~\% en vient de la réestimation du repère et non du guidage, et trois pièges
+  que, repère gelé, le guidage n'ajoute aucune variance sur aucun de quatre objets, et
+  que ce qui domine est donc la réestimation du repère, ainsi que trois pièges
   d'évaluation qui ont chacun renversé silencieusement une conclusion
   (Sec.~\ref{sec:methodology}).
 \end{enumerate}
@@ -229,14 +231,17 @@ l'image et le bruit produisent.
 imaginable serait de régresser la rotation de sortie depuis l'image, sans réentraîner
 le générateur. Il présuppose que la pose soit une fonction de l'image. En comparant les
 rotations obtenues pour trois graines de bruit sur la \emph{même} image, sur 42
-objets, l'écart médian entre graines vaut $131{,}8^\circ$ pour les objets asymétriques
-et $134{,}4^\circ$ pour les symétriques ; 1 objet asymétrique sur 16 est stable sous
-$30^\circ$, 0 sur 26 chez les symétriques ; la corrélation asymétrie / stabilité vaut
-$-0{,}124$. Répéter le recalage déplace ces médianes de quelques degrés --- il
-échantillonne des points au hasard, et sur un solide de révolution la rotation qu'il
-trouve est arbitraire --- mais pas la conclusion au niveau de la partition : les
-comptes d'objets stables et l'absence de toute relation asymétrie--stabilité sont
-inchangés d'une exécution à l'autre. Le partage par symétrie écarte un artefact de mesure --- deux sorties
+objets, l'écart médian entre graines vaut $136{,}5^\circ \pm 3{,}7$ pour les objets
+asymétriques et $135{,}7^\circ \pm 3{,}7$ pour les symétriques, moyenne et écart-type
+sur quatre exécutions indépendantes du recalage ; dans chacune, 1 objet asymétrique sur
+16 est stable sous $30^\circ$ et 0 sur 26 chez les symétriques ; la corrélation
+asymétrie / stabilité vaut $-0{,}14 \pm 0{,}06$. Le recalage échantillonne des points
+au hasard, et sur un solide de révolution la rotation qu'il trouve est arbitraire,
+d'où la dispersion des médianes ; la conclusion au niveau de la partition, elle, ne
+bouge pas --- les comptes d'objets stables et l'absence de toute relation
+asymétrie--stabilité sont identiques dans les quatre exécutions. (La mesure
+d'asymétrie par objet est elle-même stable à $0{,}001$ ; un objet est posé sur le seuil
+de $0{,}02$ et change de côté dans une exécution sur quatre, donnant 17/25.) Le partage par symétrie écarte un artefact de mesure --- deux sorties
 identiques d'un solide de révolution se recalent avec des rotations très différentes
 --- et les objets asymétriques, dont l'orientation est identifiable, ne sont \emph{pas
 plus stables}. Aucun régresseur ne peut apprendre cette pose : non faute du bon
@@ -497,10 +502,10 @@ conception.
 \caption{\textbf{Sept manipulations contrôlées du jeu d'ancres.}
 \textbf{(a)} Chaque estimation est une différence appariée entre deux conditions
 ancrées, sur le même objet et la même graine de bruit ($n=15$). Les barres d'erreur
-valent une erreur type --- $0{,}26$ lorsque les deux conditions viennent de la même
+valent une erreur type --- $0{,}58$ lorsque les deux conditions viennent de la même
 campagne et partagent donc le repère oracle, le bruit de placement s'annulant alors
-dans la différence, et $0{,}91$ lorsqu'elles viennent de campagnes distinctes, qui ne
-partagent aucune passe non ancrée. La couleur marque la significativité au test des
+dans la différence (poolé sur quatre objets), et au moins $0{,}91$ lorsqu'elles viennent
+de campagnes distinctes, qui ne partagent aucune passe non ancrée (mesuré sur un objet). La couleur marque la significativité au test des
 signes bilatéral, dont les comptes figurent à droite ; nous nous appuyons sur lui
 plutôt que sur les erreurs types, car il ne demande aucune estimation de $\sigma$.
 Trois comparaisons seulement en sortent, et toutes trois portent sur \emph{où} sont les
@@ -557,12 +562,12 @@ forme plausible. Cela vaut pour tout mélange naïf de latents génératifs.
 
 \begin{table}[t]
 \centering
-\caption{Six contacts orientés, avec et sans a priori génératif.}
+\caption{Six contacts orientés, avec et sans a priori génératif. Les valeurs Poisson sont moyenne $\pm$ écart-type sur cinq exécutions.}
 \label{tab:poisson}
 \begin{tabular}{lr}
 \toprule
-Reconstruction de Poisson~\cite{poisson}, 6 contacts orientés & 19,41 \Fs \\
-Reconstruction de Poisson, 18 contacts (3 prises) & 20,10 \\
+Reconstruction de Poisson~\cite{poisson}, 6 contacts orientés & $19{,}90 \pm 0{,}36$ \Fs \\
+Reconstruction de Poisson, 18 contacts (3 prises) & $20{,}44 \pm 0{,}18$ \\
 \midrule
 A priori génératif, image seule, sans mesure & \gd{56,52} \\
 \bottomrule
@@ -572,7 +577,7 @@ A priori génératif, image seule, sans mesure & \gd{56,52} \\
 Le tableau~\ref{tab:poisson} convertit la cause commune en une mesure, sans aucun
 modèle de diffusion. La reconstruction de Poisson consomme précisément des points
 orientés et rend une surface fermée dans 9 cas sur 10 --- ce n'est pas du gravier.
-Elle n'atteint pourtant que 34~\% de ce que l'image seule obtient déjà. Les mesures
+Elle n'atteint pourtant que 35~\% de ce que l'image seule obtient déjà. Les mesures
 éparses sont un mauvais générateur et une bonne ancre ; la répartition des rôles n'est
 pas un choix de conception mais ce que les données imposent.
 
@@ -646,23 +651,29 @@ différence appariée & 2,50 & 1,29 \\
 \end{tabular}
 \end{center}
 
-Le placement figé, la passe ancrée est aussi reproductible que la passe non ancrée.
-\textbf{Le guidage n'amplifie rien : 91~\% de la variance d'un score ancré vient de
-la réestimation du placement des ancres.} Noter dix fois un même maillage enregistré
-en explique $0{,}32$ de plus, si bien que la génération elle-même contribue pour moins
-de $0{,}4$. Le problème de repère de la Sec.~\ref{sec:frame} apparaît donc deux fois
-: il consomme l'essentiel du gain moyen, et il domine la variance.
+Le placement figé, la passe ancrée est aussi reproductible que la passe non ancrée
+($0{,}70$ contre $0{,}68$) : sur cet objet, \textbf{91~\% de la variance d'un score ancré
+vient de la réestimation du placement des ancres}. Refaire la mesure à repère gelé sur
+trois objets de plus donne des écarts-types ancrés de $1{,}74$, $0{,}40$ et $2{,}56$
+contre $2{,}53$, $0{,}49$ et $2{,}19$ non ancrés --- la passe ancrée n'est jamais plus
+bruitée que la passe non ancrée, sur aucun objet. \textbf{Le guidage n'amplifie rien.}
+Ce qui varie, c'est l'objet : le plancher va de $0{,}40$ à $2{,}56$ sur les quatre, un
+facteur six. Noter dix fois un même maillage enregistré en explique $0{,}32$. Le
+problème de repère de la Sec.~\ref{sec:frame} apparaît donc deux fois : il consomme
+l'essentiel du gain moyen, et il domine la variance.
 
 Cela corrige le modèle d'erreur. Au sein d'une campagne, le repère oracle est calculé
 une fois par (objet, graine) et partagé par toutes les conditions : le bruit de
 placement s'annule dans les différences entre conditions ; entre campagnes il ne
-s'annule pas, aucune ne partageant sa passe non ancrée. Les deux familles portent des
-erreurs types de $\approx 0{,}26$ et $0{,}91$ sur 15 cas (Fig.~\ref{fig:results}a).
-Nous fondons néanmoins chaque affirmation sur le test des signes : le $\sigma$ à
-repère gelé repose sur huit répétitions d'un seul objet, et son intervalle de confiance
-à 95~\%, $[0{,}46 ; 1{,}42]$, est assez large pour que les effets les plus petits se
-déplacent entre $1{,}8$ et $5{,}5$ erreurs types selon l'endroit où se trouve la
-vérité.
+s'annule pas, aucune ne partageant sa passe non ancrée. Poolé sur les quatre objets,
+le $\sigma$ à repère gelé d'un score ancré vaut $1{,}60$, ce qui met l'erreur type
+intra-campagne d'une différence appariée à $0{,}58$ sur 15 cas ; le chiffre
+inter-campagnes, $0{,}91$, n'a été mesuré que sur un objet et est une borne inférieure
+(Fig.~\ref{fig:results}a). Sous ces valeurs, les deux dégradations sont à $4$ erreurs
+types et plus, et les deux effets que le test des signes rejette --- normales,
+visibilité --- entre $1{,}4$ et $1{,}6$. Nous fondons néanmoins chaque affirmation sur
+le test des signes, qui ne demande aucune estimation de $\sigma$ et rend le même
+verdict.
 
 \textbf{Le F-Score est aveugle à la fragmentation.} Un semis d'éclats disjoints près
 de la vraie surface obtient un bon score. Sur la banane : une entrée à 128 points
@@ -725,8 +736,7 @@ plage de $16\times$ ; leurs normales n'aident pas de façon mesurable ; qu'elles
 ou non sur la face que la caméra ne voit pas n'a pas d'effet non plus. Ce qui compte
 est de savoir si elles peuvent être placées dans le repère où le générateur produit
 --- et ce repère est tiré avec le bruit, si bien qu'aucun estimateur ne peut
-l'apprendre. L'estimer malgré tout coûte 59 à 74~\% du gain atteignable et explique
-91~\% de la variance d'une exécution à l'autre.
+l'apprendre. L'estimer malgré tout coûte 59 à 74~\% du gain atteignable et explique ce qui varie d'une exécution à l'autre : repère gelé, l'ancrage n'ajoute aucune variance sur aucun de quatre objets.
 
 Fixer le repère par conditionnement est possible, et vaut en moyenne trois fois plus
 que l'ancrage par contrainte, mais ce n'est pas gratuit : le modèle traite la preuve

@@ -1,0 +1,92 @@
+{
+  "002_master_chef_can": {
+    "6_contacts": {
+      "depth": 3,
+      "f2": 11.137414158541754,
+      "chamfer": 0.34267127565588046,
+      "num_components": 4,
+      "largest_component_ratio": 0.8894009216589862,
+      "is_surface": false
+    },
+    "18_contacts": {
+      "depth": 5,
+      "f2": 18.156568016614745,
+      "chamfer": 0.2190808042251292,
+      "num_components": 4,
+      "largest_component_ratio": 0.993285210676515,
+      "is_surface": true
+    }
+  },
+  "006_mustard_bottle": {
+    "6_contacts": {
+      "depth": 6,
+      "f2": 27.758403261423474,
+      "chamfer": 0.14858282337100215,
+      "num_components": 6,
+      "largest_component_ratio": 0.976218787158145,
+      "is_surface": true
+    },
+    "18_contacts": {
+      "depth": 3,
+      "f2": 18.18915199133026,
+      "chamfer": 0.16613207113909134,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true
+    }
+  },
+  "011_banana": {
+    "6_contacts": {
+      "depth": 5,
+      "f2": 15.326842791911284,
+      "chamfer": 0.18909306365822925,
+      "num_components": 4,
+      "largest_component_ratio": 0.9805352798053528,
+      "is_surface": true
+    },
+    "18_contacts": {
+      "depth": 6,
+      "f2": 15.088701126573888,
+      "chamfer": 0.21030698657456046,
+      "num_components": 2,
+      "largest_component_ratio": 0.9949335022165928,
+      "is_surface": true
+    }
+  },
+  "025_mug": {
+    "6_contacts": {
+      "depth": 5,
+      "f2": 19.09949116904962,
+      "chamfer": 0.20726331335822343,
+      "num_components": 6,
+      "largest_component_ratio": 0.9802102659245516,
+      "is_surface": true
+    },
+    "18_contacts": {
+      "depth": 5,
+      "f2": 35.193496012379484,
+      "chamfer": 0.1554140856349232,
+      "num_components": 3,
+      "largest_component_ratio": 0.9945404913557779,
+      "is_surface": true
+    }
+  },
+  "035_power_drill": {
+    "6_contacts": {
+      "depth": 4,
+      "f2": 23.768772708922082,
+      "chamfer": 0.16749133219844742,
+      "num_components": 2,
+      "largest_component_ratio": 0.9873817034700315,
+      "is_surface": true
+    },
+    "18_contacts": {
+      "depth": 4,
+      "f2": 16.914076263671298,
+      "chamfer": 0.2121878506451686,
+      "num_components": 4,
+      "largest_component_ratio": 0.9799833194328608,
+      "is_surface": true
+    }
+  }
+}

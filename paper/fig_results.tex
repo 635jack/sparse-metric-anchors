@@ -5,7 +5,7 @@
 %%
 %% Two panels, one claim each, and they answer each other:
 %%   (a) seven controlled manipulations, all paired. Two families of standard
-%%       error: 0.26 within a campaign (shared oracle frame, placement noise
+%%       error: 0.58 within a campaign (pooled over four objects; shared oracle frame, placement noise
 %%       cancels) and 0.91 across campaigns (no shared unanchored pass). Colour
 %%       encodes the two-sided sign test, which carries the conclusions. Three
 %%       clear it, four do not -- and the three that do are all about WHERE the
@@ -52,8 +52,8 @@
            error bars/.cd, x dir=both, x explicit, error bar style={accent}]
     table[x=v, y=i, x error=e] {
       v      i   e
-      -2.55  0   0.26
-      -2.40  1   0.26
+      -2.55  0   0.58
+      -2.40  1   0.58
        2.22  6   0.91
     };
   \addplot[only marks, mark=*, mark size=1.7pt, draw=black!45, fill=black!30,
@@ -62,8 +62,8 @@
       v      i   e
       -0.24  2   0.91
       -0.16  3   0.91
-       0.82  4   0.26
-       0.93  5   0.26
+       0.82  4   0.58
+       0.93  5   0.58
     };
 
   % le compte de signes, qui est l'evidence reelle

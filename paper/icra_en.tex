@@ -92,12 +92,13 @@ the injection of such sparse measurements into a pretrained prior, and find that
 neither their number, nor their content, nor which face of the object they touch. It
 is the \emph{output frame} of the generator. On a billion-parameter wavelet-latent
 diffusion model we show that the pose of the generated shape is not a function of the
-input image: it is resampled with the noise seed, shifting by $130^\circ$ in median
+input image: it is resampled with the noise seed, shifting by about $135^\circ$ in median
 across seeds on 42 YCB objects. Two anchoring routes are then measured against this
 fact. Injecting contacts as a differentiable constraint during sampling, with no
 training, improves F-Score@2\% by $+3.21$ ($p = 3.1\times10^{-4}$, sign test), against
 $+7.82$ when the frame is given: frame estimation consumes 59--74\% of the achievable
-gain, and 91\% of the run-to-run variance. Anchoring the frame instead by
+gain, and, once the frame is frozen, the anchored pass is as reproducible as the
+unanchored one on every object tested. Anchoring the frame instead by
 reprojecting one depth map into the canonical views of a multi-view variant fixes the
 pose to $\pm 2^\circ$ and gains $+11.2$ on average --- but the effect is bimodal,
 losing $-22$ on solids of revolution, and no ground-truth-free selector we tested
@@ -141,8 +142,8 @@ Together they locate the problem.
 \subsection{Contributions}
 \begin{enumerate}
   \item The \textbf{output pose of a single-view 3D diffusion model is not learnable
-  from its input}: across three noise seeds on the same image, it moves by
-  $130^\circ$ in median on 42 objects, with asymmetric objects no more stable than
+  from its input}: across three noise seeds on the same image, it moves by about
+  $135^\circ$ in median on 42 objects, with asymmetric objects no more stable than
   symmetric ones (Sec.~\ref{sec:frame}).
   \item A \textbf{training-free constraint-anchoring scheme}, differentiable
   end-to-end at sampling time, and a measurement of what the frame costs it:
@@ -155,8 +156,9 @@ Together they locate the problem.
   \item A \textbf{characterisation of what an anchor set must be}: seven controlled
   manipulations show that spread and placement accuracy matter, while count, normals
   and visibility do not (Sec.~\ref{sec:res-anchor}).
-  \item A \textbf{decomposition of run-to-run variance}, showing that 91\% of it comes
-  from frame re-estimation and not from the guidance, and three evaluation pitfalls
+  \item A \textbf{decomposition of run-to-run variance}, showing that with the frame
+  frozen the guidance adds no variance on any of four objects, so what dominates is
+  frame re-estimation, and three evaluation pitfalls
   that each silently reversed a conclusion (Sec.~\ref{sec:methodology}).
 \end{enumerate}
 
@@ -214,13 +216,16 @@ the image and the noise produce.
 regress the output rotation from the image, with no retraining of the generator. It
 presumes that the pose is a function of the image. Comparing the rotations obtained for
 three noise seeds on the \emph{same} image, over 42 objects, the median inter-seed
-discrepancy is $131.8^\circ$ for asymmetric objects and $134.4^\circ$ for symmetric
-ones; 1 of 16 asymmetric objects is stable below $30^\circ$, 0 of 26 symmetric ones;
-the asymmetry/stability correlation is $-0.124$. Repeating the registration moves
-these medians by several degrees --- it samples points at random, and on a solid of
-revolution the rotation it finds is arbitrary --- but not the split-level conclusion:
-the stable counts and the absence of any asymmetry--stability relation are unchanged
-between runs. The split by symmetry rules out a
+discrepancy is $136.5^\circ \pm 3.7$ for asymmetric objects and $135.7^\circ \pm
+3.7$ for symmetric ones, mean and standard deviation over four independent runs of the
+registration; in every run, 1 of 16 asymmetric objects is stable below $30^\circ$ and
+0 of 26 symmetric ones; the asymmetry/stability correlation is $-0.14 \pm 0.06$. The
+registration samples points at random, and on a solid of revolution the rotation it
+finds is arbitrary, which is why the medians carry a spread; the split-level
+conclusion does not --- the stable counts and the absence of any asymmetry--stability
+relation are identical in all four runs. (The per-object asymmetry measure itself is
+stable to $0.001$; one object sits on the $0.02$ threshold and changes side in one run
+of four, giving 17/25 there.) The split by symmetry rules out a
 measurement artefact --- two identical outputs of a solid of revolution register with
 very different rotations --- and the asymmetric objects, whose orientation is
 identifiable, are \emph{no more stable}. No regressor can learn this pose: not for
@@ -468,9 +473,10 @@ different objects by accident, not by design.
 \caption{\textbf{Seven controlled manipulations of the anchor set.}
 \textbf{(a)} Every estimate is a paired difference between two anchored conditions on
 the same object and the same noise seed ($n=15$). Error bars are one standard error
---- $0.26$ when both conditions come from the same campaign and therefore share the
-oracle frame, so that placement noise cancels in the difference, and $0.91$ when they
-come from different campaigns, which share no unanchored pass. Colour marks
+--- $0.58$ when both conditions come from the same campaign and therefore share the
+oracle frame, so that placement noise cancels in the difference (pooled over four
+objects), and at least $0.91$ when they come from different campaigns, which share no
+unanchored pass (measured on one object). Colour marks
 significance under a two-sided sign test, whose counts are given at the right; we rely
 on it rather than on the standard errors, because it needs no estimate of $\sigma$.
 Only three comparisons clear it, and all three concern \emph{where} the anchors are
@@ -526,12 +532,12 @@ shape. This holds for any naive blending of generative latents.
 
 \begin{table}[t]
 \centering
-\caption{Six oriented contacts, with and without a generative prior.}
+\caption{Six oriented contacts, with and without a generative prior. Poisson values are mean $\pm$ s.d.\ over five runs.}
 \label{tab:poisson}
 \begin{tabular}{lr}
 \toprule
-Poisson reconstruction~\cite{poisson}, 6 oriented contacts & 19.41 \Fs \\
-Poisson reconstruction, 18 contacts (3 grasps) & 20.10 \\
+Poisson reconstruction~\cite{poisson}, 6 oriented contacts & $19.90 \pm 0.36$ \Fs \\
+Poisson reconstruction, 18 contacts (3 grasps) & $20.44 \pm 0.18$ \\
 \midrule
 Generative prior, image only, no measurement & \gd{56.52} \\
 \bottomrule
@@ -541,7 +547,7 @@ Generative prior, image only, no measurement & \gd{56.52} \\
 Table~\ref{tab:poisson} converts the shared cause into a measurement without any
 diffusion model. Poisson reconstruction consumes exactly oriented points and yields a
 watertight surface in 9 of 10 cases --- this is not gravel. It still reaches only
-34\% of what the image alone already achieves. Sparse measurements are a poor
+35\% of what the image alone already achieves. Sparse measurements are a poor
 generator and a good anchor; the division of labour is not a design choice but what
 the data imposes.
 
@@ -610,21 +616,27 @@ paired difference & 2.50 & 1.29 \\
 \end{tabular}
 \end{center}
 
-With the placement frozen, the anchored pass is as reproducible as the unanchored one.
-\textbf{Guidance amplifies nothing: 91\% of the variance of an anchored score comes
-from re-estimating where the anchors go.} Re-scoring one saved mesh ten times accounts
-for a further $0.32$, so generation itself contributes under $0.4$. The frame problem
-of Sec.~\ref{sec:frame} therefore appears twice --- it consumes most of the mean gain,
-and it dominates the variance.
+With the placement frozen, the anchored pass is as reproducible as the unanchored one
+($0.70$ against $0.68$): on this object, \textbf{91\% of the variance of an anchored
+score comes from re-estimating where the anchors go}. Repeating the frozen-frame
+measurement on three more objects gives anchored standard deviations of $1.74$, $0.40$
+and $2.56$ against unanchored ones of $2.53$, $0.49$ and $2.19$ --- the anchored pass is
+never noisier than the unanchored one, on any object. \textbf{Guidance amplifies
+nothing.} What does vary is the object: the floor spans $0.40$ to $2.56$ across the
+four, a factor of six. Re-scoring one saved mesh ten times accounts for $0.32$ of it.
+The frame problem of Sec.~\ref{sec:frame} therefore appears twice --- it consumes most
+of the mean gain, and it dominates the variance.
 
 This fixes the error model. Within one campaign the oracle frame is computed once per
 (object, seed) and shared by every condition, so placement noise cancels in
 condition-versus-condition differences; across campaigns it does not, since no two
-share an unanchored pass. The two families carry standard errors of $\approx 0.26$ and
-$0.91$ over 15 cases (Fig.~\ref{fig:results}a). We nonetheless base every claim on the
-sign test: the frozen-frame $\sigma$ rests on eight repetitions of one object, and its
-95\% confidence interval, $[0.46, 1.42]$, is wide enough that the smaller effects move
-between $1.8$ and $5.5$ standard errors depending on where the truth lies.
+share an unanchored pass. Pooled over the four objects, the frozen-frame $\sigma$ of an
+anchored score is $1.60$, which puts the within-campaign standard error of a paired
+difference at $0.58$ over 15 cases; the cross-campaign figure, $0.91$, was measured on
+one object only and is a lower bound (Fig.~\ref{fig:results}a). Under these, the two
+degradations sit at $4$ standard errors and more, and the two effects the sign test
+rejects --- normals, visibility --- at $1.4$ to $1.6$. We nonetheless base every claim
+on the sign test, which needs no estimate of $\sigma$ and gives the same verdict.
 
 \textbf{F-Score is blind to fragmentation.} A scatter of disjoint shards near the true
 surface scores well. On the banana: a 128-point cloud input yields 43 connected
@@ -684,7 +696,7 @@ $16\times$ range; their normals do not measurably help; whether they lie on the 
 the camera cannot see does not matter either. What matters is whether they can be
 placed in the frame the generator produces in --- and that frame is drawn with the
 noise, so no estimator can learn it. Estimating it anyway costs 59--74\% of the
-achievable gain and accounts for 91\% of the run-to-run variance.
+achievable gain, and it is what varies between runs: with the frame frozen, anchoring adds no variance on any of four objects.
 
 Fixing the frame by conditioning is possible, and worth three times more than
 constraint anchoring on average, but it is not free: the model treats the reprojected

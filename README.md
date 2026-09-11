@@ -13,6 +13,12 @@ the achievable gain and most of the run-to-run variance.
 Everything here is training-free. The backbone is [WaLa](https://github.com/AutodeskAILab/WaLa)
 (Sanghi et al., 2024), used through its published weights; nothing is retrained.
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/635jack/sparse-metric-anchors/blob/main/colab/reproduce.ipynb)
+**Verify the numbers without a GPU:** `colab/reproduce.ipynb` downloads the benchmark
+and recomputes every table and figure of the paper from the published campaign
+results, with an independent implementation of the statistics, then re-runs the
+Poisson witness live. About two minutes on a CPU runtime.
+
 ## What is in this repository
 
 ```
@@ -26,7 +32,7 @@ notes/      two internal syntheses (French) that document how the results were r
 
 The 42 YCB objects — one rendered image and one reference mesh each — are **not** in
 this repository. They are published as a dataset:
-`jack635/sparse-metric-anchors-ycb` on Hugging Face. Download it into
+[`jack635/sparse-metric-anchors-ycb`](https://huggingface.co/datasets/jack635/sparse-metric-anchors-ycb) on Hugging Face. Download it into
 `data/training_ycb/` before running any campaign.
 
 ## The method, in one file

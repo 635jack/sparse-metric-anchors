@@ -96,7 +96,7 @@ input image: it is resampled with the noise seed, shifting by $130^\circ$ in med
 across seeds on 42 YCB objects. Two anchoring routes are then measured against this
 fact. Injecting contacts as a differentiable constraint during sampling, with no
 training, improves F-Score@2\% by $+3.21$ ($p = 3.1\times10^{-4}$, sign test), against
-$+8.05$ when the frame is given: frame estimation consumes 60--74\% of the achievable
+$+7.82$ when the frame is given: frame estimation consumes 59--74\% of the achievable
 gain, and 91\% of the run-to-run variance. Anchoring the frame instead by
 reprojecting one depth map into the canonical views of a multi-view variant fixes the
 pose to $\pm 2^\circ$ and gains $+11.2$ on average --- but the effect is bimodal,
@@ -146,7 +146,7 @@ Together they locate the problem.
   symmetric ones (Sec.~\ref{sec:frame}).
   \item A \textbf{training-free constraint-anchoring scheme}, differentiable
   end-to-end at sampling time, and a measurement of what the frame costs it:
-  $+3.21$ realised against $+8.05$ with the frame given
+  $+3.21$ realised against $+7.82$ with the frame given
   (Secs.~\ref{sec:constraint}, \ref{sec:res-constraint}).
   \item A \textbf{conditioning-anchoring scheme} by depth reprojection, which fixes the
   frame and gains $+11.2$, together with the finding that the gain is bimodal and that
@@ -392,7 +392,7 @@ Positive cases & \gd{83 / 125} \\
 Sign test (two-sided) & \gd{$p = 3.1\times10^{-4}$} \\
 Objects with positive mean gain & 35 / 42 \\
 \midrule
-Mean gain, frame given (oracle) & $+8.05$ \\
+Mean gain, frame given (oracle) & $+7.82$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -404,8 +404,8 @@ at 42 objects the effect is stronger and two orders of magnitude more significan
 it was not a single object carrying everything.
 
 Comparing the realised gain to the oracle isolates the cost of estimating the frame:
-$+3.21$ against $+8.05$ over 42 objects, and $+1.79$ against $+6.77$ under the
-palpation model on five. \textbf{Frame estimation absorbs 60--74\% of what constraint
+$+3.21$ against $+7.82$ over 42 objects, and $+1.79$ against $+6.77$ under the
+palpation model on five. \textbf{Frame estimation absorbs 59--74\% of what constraint
 anchoring can deliver} --- an order of magnitude more than any other factor measured in
 this paper.
 
@@ -683,7 +683,7 @@ what limits the anchoring is not the measurements. Their number does not matter 
 $16\times$ range; their normals do not measurably help; whether they lie on the face
 the camera cannot see does not matter either. What matters is whether they can be
 placed in the frame the generator produces in --- and that frame is drawn with the
-noise, so no estimator can learn it. Estimating it anyway costs 60--74\% of the
+noise, so no estimator can learn it. Estimating it anyway costs 59--74\% of the
 achievable gain and accounts for 91\% of the run-to-run variance.
 
 Fixing the frame by conditioning is possible, and worth three times more than

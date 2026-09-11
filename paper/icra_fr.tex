@@ -100,8 +100,8 @@ rééchantillonnée avec la graine de bruit, et se déplace de $130^\circ$ en m�
 d'une graine à l'autre sur 42 objets YCB. Deux voies d'ancrage sont ensuite mesurées
 contre ce fait. Injecter des contacts comme contrainte différentiable pendant
 l'échantillonnage, sans entraînement, améliore le F-Score@2\% de $+3{,}21$ ($p =
-3{,}1\times10^{-4}$, test des signes), contre $+8{,}05$ lorsque le repère est donné :
-l'estimation du repère consomme 60 à 74~\% du gain atteignable, et 91~\% de la
+3{,}1\times10^{-4}$, test des signes), contre $+7{,}82$ lorsque le repère est donné :
+l'estimation du repère consomme 59 à 74~\% du gain atteignable, et 91~\% de la
 variance d'une exécution à l'autre. Ancrer le repère par conditionnement, en
 reprojetant une seule carte de profondeur dans les vues canoniques d'une variante
 multi-vues, fixe la pose à $\pm 2^\circ$ et gagne $+11{,}2$ en moyenne --- mais
@@ -155,7 +155,7 @@ deux ensemble localisent le problème.
   plus stables que les symétriques (Sec.~\ref{sec:frame}).
   \item Un \textbf{schéma d'ancrage par contrainte sans entraînement}, différentiable
   de bout en bout à l'échantillonnage, et la mesure de ce que le repère lui coûte :
-  $+3{,}21$ réalisé contre $+8{,}05$ repère donné
+  $+3{,}21$ réalisé contre $+7{,}82$ repère donné
   (Secs.~\ref{sec:constraint}, \ref{sec:res-constraint}).
   \item Un \textbf{schéma d'ancrage par conditionnement} par reprojection de
   profondeur, qui fixe le repère et gagne $+11{,}2$, avec le constat que le gain est
@@ -418,7 +418,7 @@ Cas positifs & \gd{83 / 125} \\
 Test des signes (bilatéral) & \gd{$p = 3{,}1\times10^{-4}$} \\
 Objets à gain moyen positif & 35 / 42 \\
 \midrule
-Gain moyen, repère donné (oracle) & $+8{,}05$ \\
+Gain moyen, repère donné (oracle) & $+7{,}82$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -430,8 +430,8 @@ $+1{,}79$ à $p = 0{,}035$ ; à 42 objets l'effet est plus fort et deux ordres d
 grandeur plus significatif --- ce n'était donc pas un objet qui portait tout.
 
 Comparer le gain réalisé à l'oracle isole le coût de l'estimation du repère :
-$+3{,}21$ contre $+8{,}05$ sur 42 objets, et $+1{,}79$ contre $+6{,}77$ sous le modèle
-de palpation sur cinq. \textbf{L'estimation du repère absorbe 60 à 74~\% de ce que
+$+3{,}21$ contre $+7{,}82$ sur 42 objets, et $+1{,}79$ contre $+6{,}77$ sous le modèle
+de palpation sur cinq. \textbf{L'estimation du repère absorbe 59 à 74~\% de ce que
 l'ancrage par contrainte peut rendre} --- un ordre de grandeur au-dessus de tout autre
 facteur mesuré dans ce papier.
 
@@ -725,7 +725,7 @@ plage de $16\times$ ; leurs normales n'aident pas de façon mesurable ; qu'elles
 ou non sur la face que la caméra ne voit pas n'a pas d'effet non plus. Ce qui compte
 est de savoir si elles peuvent être placées dans le repère où le générateur produit
 --- et ce repère est tiré avec le bruit, si bien qu'aucun estimateur ne peut
-l'apprendre. L'estimer malgré tout coûte 60 à 74~\% du gain atteignable et explique
+l'apprendre. L'estimer malgré tout coûte 59 à 74~\% du gain atteignable et explique
 91~\% de la variance d'une exécution à l'autre.
 
 Fixer le repère par conditionnement est possible, et vaut en moyenne trois fois plus

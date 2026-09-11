@@ -1,0 +1,915 @@
+<title>Le tactile au régime DH116</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground:   #F2F4F6;
+    --surface:  #FFFFFF;
+    --sunken:   #E9ECEF;
+    --ink:      #171B21;
+    --ink-soft: #414A57;
+    --muted:    #6B7482;
+    --rule:     #D8DDE3;
+    --rule-soft:#E6EAEE;
+    --accent:   #2C5B79;
+    --accent-soft: #E2EBF1;
+    --pos:      #2A6B58;
+    --pos-soft: #E0EDE8;
+    --neg:      #96412F;
+    --neg-soft: #F2E3DE;
+    --shadow:   0 1px 2px rgba(23,27,33,.05), 0 8px 24px -16px rgba(23,27,33,.22);
+
+    --measure: 66ch;
+    --s1: .35rem; --s2: .7rem; --s3: 1.1rem; --s4: 1.7rem;
+    --s5: 2.6rem; --s6: 4rem; --s7: 6rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:   #101419;
+      --surface:  #181D24;
+      --sunken:   #1F252D;
+      --ink:      #E6EAF0;
+      --ink-soft: #B9C2CE;
+      --muted:    #8B94A2;
+      --rule:     #2B323B;
+      --rule-soft:#232A32;
+      --accent:   #7FB2D3;
+      --accent-soft: #1C2A35;
+      --pos:      #6DBEA1;
+      --pos-soft: #16281F;
+      --neg:      #D98D77;
+      --neg-soft: #2C1D18;
+      --shadow:   0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:   #101419;
+    --surface:  #181D24;
+    --sunken:   #1F252D;
+    --ink:      #E6EAF0;
+    --ink-soft: #B9C2CE;
+    --muted:    #8B94A2;
+    --rule:     #2B323B;
+    --rule-soft:#232A32;
+    --accent:   #7FB2D3;
+    --accent-soft: #1C2A35;
+    --pos:      #6DBEA1;
+    --pos-soft: #16281F;
+    --neg:      #D98D77;
+    --neg-soft: #2C1D18;
+    --shadow:   0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 16.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 var(--s4) var(--s7); }
+
+  /* ─── en-tête ─── */
+  .masthead {
+    padding: var(--s6) 0 var(--s5);
+    border-bottom: 2px solid var(--ink);
+  }
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .72rem; font-weight: 500;
+    letter-spacing: .13em; text-transform: uppercase;
+    color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: var(--s3);
+    margin-bottom: var(--s3);
+  }
+  h1 {
+    font-family: Spectral, Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(2.1rem, 5.2vw, 3.3rem);
+    line-height: 1.06;
+    letter-spacing: -.018em;
+    margin: 0 0 var(--s3);
+    text-wrap: balance;
+  }
+  .lede {
+    font-family: Spectral, Georgia, serif;
+    font-size: clamp(1.08rem, 2.1vw, 1.28rem);
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 58ch;
+    margin: 0;
+  }
+  .lede em { color: var(--ink); font-style: italic; }
+
+  /* ─── rail de statut ─── */
+  section.block {
+    display: grid;
+    grid-template-columns: 148px minmax(0, 1fr);
+    gap: 0 var(--s4);
+    padding: var(--s5) 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  section.block:last-of-type { border-bottom: 0; }
+  .rail { position: relative; }
+  .rail-inner { position: sticky; top: var(--s3); }
+  .status {
+    display: inline-block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .66rem; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase;
+    padding: .28rem .5rem;
+    border-radius: 2px;
+    line-height: 1.3;
+  }
+  .st-etabli   { background: var(--pos-soft);    color: var(--pos);    border: 1px solid var(--pos); }
+  .st-neuf     { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); }
+  .st-absent   { background: var(--neg-soft);    color: var(--neg);    border: 1px solid var(--neg); }
+  .st-faire    { background: transparent;        color: var(--muted);  border: 1px dashed var(--rule); }
+  .rail-note {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .68rem; line-height: 1.5;
+    color: var(--muted);
+    margin-top: var(--s2);
+  }
+
+  .body { min-width: 0; max-width: var(--measure); }
+  .body.wide { max-width: none; }
+
+  h2 {
+    font-family: Spectral, Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(1.45rem, 3vw, 1.85rem);
+    line-height: 1.2; letter-spacing: -.012em;
+    margin: 0 0 var(--s3);
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 600; font-size: 1rem;
+    letter-spacing: .005em;
+    margin: var(--s4) 0 var(--s2);
+  }
+  p { margin: 0 0 var(--s3); }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 600; color: var(--ink); }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px;
+  }
+  code, .mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .875em;
+  }
+  code { background: var(--sunken); padding: .1em .34em; border-radius: 3px; }
+
+  .num { font-variant-numeric: tabular-nums; }
+  .gain { color: var(--pos); font-weight: 600; }
+  .loss { color: var(--neg); font-weight: 600; }
+
+  /* ─── tableaux ─── */
+  .tablewrap { overflow-x: auto; margin: var(--s4) 0; }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: .875rem;
+    font-variant-numeric: tabular-nums;
+  }
+  caption {
+    caption-side: top; text-align: left;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: var(--s2);
+  }
+  th, td { padding: .55rem .7rem; text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .68rem; font-weight: 500;
+    letter-spacing: .07em; text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: .4rem;
+  }
+  tbody tr { border-bottom: 1px solid var(--rule-soft); }
+  tbody tr:last-child { border-bottom: 0; }
+  tbody th { font-weight: 500; }
+  tr.hi td, tr.hi th { background: var(--accent-soft); }
+  td.tag {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .72rem;
+  }
+
+  /* ─── barres d'effet ─── */
+  .bars { margin: var(--s4) 0; }
+  .barrow {
+    display: grid;
+    grid-template-columns: minmax(140px, 190px) minmax(180px, 1fr) 62px;
+    align-items: center;
+    gap: var(--s3);
+    padding: .5rem 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .barrow:last-child { border-bottom: 0; }
+  .barlabel { font-size: .85rem; }
+  .barlabel .sub {
+    display: block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .68rem; color: var(--muted);
+  }
+  .track {
+    position: relative; height: 26px;
+    background: var(--sunken);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .zero {
+    position: absolute; top: 0; bottom: 0; width: 1px;
+    background: var(--ink); opacity: .55;
+  }
+  .band {
+    position: absolute; top: 5px; bottom: 5px;
+    background: var(--accent); opacity: .17;
+    border-radius: 2px;
+  }
+  .mean {
+    position: absolute; top: 9px; height: 8px;
+    background: var(--accent);
+    border-radius: 1px;
+  }
+  .mean.neg { background: var(--neg); }
+  .ceil {
+    position: absolute; top: 2px; bottom: 2px; width: 2px;
+    background: var(--pos);
+  }
+  .barval {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .82rem; font-weight: 600;
+    text-align: right; font-variant-numeric: tabular-nums;
+  }
+  .barkey {
+    display: flex; flex-wrap: wrap; gap: var(--s3);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .68rem; color: var(--muted);
+    margin-top: var(--s2);
+  }
+  .barkey span { display: inline-flex; align-items: center; gap: .38rem; }
+  .swatch { width: 14px; height: 8px; border-radius: 1px; display: inline-block; }
+
+  /* ─── encadrés ─── */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+    padding: var(--s3) var(--s4);
+    margin: var(--s4) 0;
+    box-shadow: var(--shadow);
+  }
+  .callout.warn { border-left-color: var(--neg); }
+  .callout.good { border-left-color: var(--pos); }
+  .callout h3 { margin-top: 0; }
+  .callout p:last-child { margin-bottom: 0; }
+
+  .verdict {
+    font-family: Spectral, Georgia, serif;
+    font-size: 1.12rem; line-height: 1.5;
+    color: var(--ink);
+  }
+
+  ul { margin: 0 0 var(--s3); padding-left: 1.15rem; }
+  li { margin-bottom: var(--s2); }
+  li::marker { color: var(--muted); }
+
+  details {
+    border-top: 1px solid var(--rule-soft);
+    padding: var(--s2) 0;
+  }
+  summary {
+    cursor: pointer; font-weight: 500; font-size: .9rem;
+    list-style: none; display: flex; gap: .5rem; align-items: baseline;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: "+"; font-family: "IBM Plex Mono", monospace;
+    color: var(--accent); font-weight: 600;
+  }
+  details[open] summary::before { content: "–"; }
+  details > *:not(summary) { margin-top: var(--s2); font-size: .9rem; }
+
+  footer {
+    margin-top: var(--s6);
+    padding-top: var(--s4);
+    border-top: 2px solid var(--ink);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .74rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  footer .fgrid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: var(--s3) var(--s4);
+  }
+  footer strong { color: var(--ink-soft); font-weight: 600; }
+
+  @media (max-width: 720px) {
+    section.block { grid-template-columns: 1fr; gap: var(--s3); }
+    .rail-inner { position: static; }
+    .barrow { grid-template-columns: 1fr 56px; }
+    .barrow .track { grid-column: 1 / -1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="kicker">
+      <span>ISIR · WL-VisioTouch</span>
+      <span>25 août – 1<sup>er</sup> septembre 2026</span>
+      <span>WaLa-SV-1B · YCB · Mac M2 Max</span>
+    </div>
+    <h1>Le tactile au régime DH116</h1>
+    <p class="lede">Le guidage par contrainte de contact fonctionne à 128 points. La main du
+    banc n'en offre que six à neuf, resserrés et bruités. Ce qu'il en reste survit — mais
+    <em>pas pour la raison annoncée</em> : le gain ne suit pas la face cachée, et ce document
+    dit ce qu'il suit à la place.</p>
+  </header>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section class="block">
+    <div class="rail"><div class="rail-inner">
+      <span class="status st-etabli">Établi</span>
+      <p class="rail-note">42 objets × 3 graines<br>126 cas appariés<br>p = 4,6 × 10⁻⁴</p>
+    </div></div>
+    <div class="body">
+      <h2>Le point de départ : la technique n° 5 marche</h2>
+      <p>Sur sept techniques de fusion instrumentées, une seule tient. Six exigent que le
+      tactile soit un <strong>générateur</strong> de forme ; la septième ne lui demande
+      d'être qu'une <strong>contrainte</strong> — à chaque pas de débruitage, on décode ẑ₀
+      en champ de distance signée, on l'évalue aux contacts, on corrige ẑ₀ par le gradient
+      de l'écart à zéro.</p>
+
+      <div class="tablewrap">
+        <table>
+          <caption>Campagne mono-vue, 42 objets YCB</caption>
+          <tbody>
+            <tr><th>Témoin, image seule</th><td class="num">53,1 F@2 %</td></tr>
+            <tr class="hi"><th>Gain moyen</th><td class="num gain">+3,21</td></tr>
+            <tr><th>Médiane / écart-type</th><td class="num">+1,69 / 7,52</td></tr>
+            <tr><th>Cas positifs</th><td class="num">83 / 126</td></tr>
+            <tr><th>Plafond oracle (pose exacte)</th><td class="num">+8,05</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>L'écart entre <span class="num">+3,21</span> et <span class="num">+8,05</span> est
+      entièrement imputable à l'estimation de pose : WaLa-SV déclare
+      <code>use_camera_index = False</code>, donc la pose de sortie n'est pas une fonction de
+      l'image — changer la seule graine de bruit la fait tourner de 130° en médiane.</p>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section class="block">
+    <div class="rail"><div class="rail-inner">
+      <span class="status st-absent">Mesuré, jamais écrit</span>
+      <p class="rail-note">13 août, 22 h 15<br>absent du rapport<br>rédigé à 17 h 51</p>
+    </div></div>
+    <div class="body">
+      <h2>Le détour DM4 n'a pas transféré la marge</h2>
+      <p>Le rapport se termine sur un encadré optimiste : une vue réelle plus trois vues de
+      profondeur reprojetées ancrent la pose <em>et</em> laissent de la marge. La campagne de
+      guidage lancée le soir même dit autre chose.</p>
+
+      <div class="tablewrap">
+        <table>
+          <caption>42 objets × 3 graines, les deux campagnes</caption>
+          <thead>
+            <tr><th></th><th>Mono-vue</th><th>DM4 reprojeté</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>Témoin</th><td class="num">53,1</td><td class="num">64,3</td></tr>
+            <tr class="hi"><th>Gain moyen</th><td class="num gain">+3,21</td><td class="num">+0,38</td></tr>
+            <tr><th>Positifs</th><td class="num">83/126</td><td class="num">75/126</td></tr>
+            <tr><th>p (test des signes)</th><td class="num">4,6 × 10⁻⁴</td><td class="num">0,02</td></tr>
+            <tr><th>Objets à gain positif</th><td class="num">35/42</td><td class="num">23/42</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <h3>Le compromis n'est pas contourné, il est déplacé</h3>
+        <p>La reprojection rend la pose — et reprend presque tout ce que le toucher
+        apportait. Le témoin monte de 11 points, le gain s'effondre d'un facteur 8.
+        <strong>L'encadré « les deux conditions sont réunies » ne tient pas</strong> et doit
+        être repris ou retiré.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section class="block">
+    <div class="rail"><div class="rail-inner">
+      <span class="status st-neuf">Mesuré 25 août</span>
+      <p class="rail-note">5 objets × 3 graines<br>126 min de calcul<br>placement oracle</p>
+    </div></div>
+    <div class="body wide">
+      <h2>Le guidage survit à l'effondrement de cardinalité</h2>
+      <p style="max-width: var(--measure)">Toutes les campagnes du dépôt tournent à 128 points
+      de contact ; la plus pauvre à 32. La main n'en offre pas tant : neuf zones tactiles
+      exploitables, dont une saisie n'excite que trois à cinq. <strong>Ce régime n'avait jamais
+      été mesuré.</strong> Les quatre conditions ci-dessous partagent les mêmes huit plaques
+      que la campagne de référence — seule la cardinalité change.</p>
+
+      <div class="bars">
+        <div class="barrow">
+          <div class="barlabel">8 contacts, position<span class="sub">dh8</span></div>
+          <div class="track">
+            <div class="band" style="left:22.3%; width:52.3%"></div>
+            <div class="zero" style="left:31.25%"></div>
+            <div class="mean" style="left:31.25%; width:20.3%"></div>
+            <div class="ceil" style="left:73.6%" title="plafond à 128 points : +6,77"></div>
+          </div>
+          <div class="barval gain">+3,25</div>
+        </div>
+        <div class="barrow">
+          <div class="barlabel">8 contacts + normales<span class="sub">dh8n</span></div>
+          <div class="track">
+            <div class="band" style="left:19.4%; width:75.9%"></div>
+            <div class="zero" style="left:31.25%"></div>
+            <div class="mean" style="left:31.25%; width:26.1%"></div>
+            <div class="ceil" style="left:73.6%"></div>
+          </div>
+          <div class="barval gain">+4,18</div>
+        </div>
+        <div class="barrow">
+          <div class="barlabel">+ placement bruité<span class="sub">dh8n_bruit · 3 mm / 15°</span></div>
+          <div class="track">
+            <div class="band" style="left:21.4%; width:42.0%"></div>
+            <div class="zero" style="left:31.25%"></div>
+            <div class="mean" style="left:31.25%; width:11.1%"></div>
+            <div class="ceil" style="left:73.6%"></div>
+          </div>
+          <div class="barval">+1,78</div>
+        </div>
+        <div class="barrow">
+          <div class="barlabel">4 contacts seulement<span class="sub">dh4</span></div>
+          <div class="track">
+            <div class="band" style="left:19.9%; width:31.4%"></div>
+            <div class="zero" style="left:31.25%"></div>
+            <div class="mean" style="left:31.25%; width:4.4%"></div>
+            <div class="ceil" style="left:73.6%"></div>
+          </div>
+          <div class="barval">+0,70</div>
+        </div>
+        <div class="barkey">
+          <span><i class="swatch" style="background:var(--accent)"></i> gain moyen F@2 %</span>
+          <span><i class="swatch" style="background:var(--accent); opacity:.25"></i> ± un écart-type</span>
+          <span><i class="swatch" style="background:var(--pos); width:3px; height:12px"></i> plafond à 128 points (+6,77)</span>
+        </div>
+      </div>
+
+      <p style="max-width: var(--measure)">Seize fois moins de points coûtent environ
+      <strong>la moitié du plafond</strong> : <span class="num">+6,77 → +3,25</span>. Pas
+      l'effondrement attendu. C'est la troisième confirmation indépendante que le nombre de
+      points n'est pas l'axe qui décide — après le balayage 32/128/512 et le témoin Poisson
+      plus bas. <strong>Mais chaque bande d'incertitude traverse le zéro</strong>, et
+      <span class="num">dh8</span> à p = 0,059 n'est pas significatif.</p>
+
+      <div class="tablewrap">
+        <table>
+          <caption>Comparaisons appariées — même objet, même graine</caption>
+          <thead>
+            <tr><th>Écart mesuré</th><th>Moyenne</th><th>Médiane</th><th>Signes</th><th>p</th><th>Verdict</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Normales vs sans</th>
+              <td class="num">+0,93</td><td class="num">+0,26</td>
+              <td class="num">10/15 positifs</td><td class="num">0,151</td>
+              <td class="tag">non significatif</td>
+            </tr>
+            <tr class="hi">
+              <th>Bruit de placement 3 mm / 15°</th>
+              <td class="num loss">−2,40</td><td class="num">−1,44</td>
+              <td class="num">12/15 négatifs</td><td class="num">0,018</td>
+              <td class="tag">significatif</td>
+            </tr>
+            <tr class="hi">
+              <th>4 zones au lieu de 8</th>
+              <td class="num loss">−2,55</td><td class="num">−1,63</td>
+              <td class="num">12/15 négatifs</td><td class="num">0,018</td>
+              <td class="tag">significatif</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <h3>Le levier espéré n'est pas celui qui compte</h3>
+        <p class="verdict">Les <strong>normales</strong> — sur lesquelles reposait l'espoir de
+        compenser la rareté des contacts par plus d'information par contact — donnent
+        <span class="num">+0,93</span>, soit <strong>exactement une erreur type</strong> du
+        bruit d'exécution mesuré plus bas : indétectable à cette résolution. Les deux effets
+        qui <em>dégradent</em> tiennent, à 2,6 et 2,8 erreurs types et p = 0,018 : le bruit de
+        placement et le passage à quatre zones. <strong>Une saisie réelle de la DH116 a
+        exactement ces deux propriétés.</strong></p>
+      </div>
+
+      <details>
+        <summary>Détail par objet — deux objets portent tout le résultat</summary>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr><th>Objet</th><th>Témoin</th><th>dh8</th><th>dh8n</th><th>bruité</th><th>dh4</th></tr>
+            </thead>
+            <tbody>
+              <tr><th>035_power_drill</th><td class="num">59,9</td><td class="num gain">+9,80</td><td class="num gain">+14,90</td><td class="num gain">+6,84</td><td class="num">+2,91</td></tr>
+              <tr><th>006_mustard_bottle</th><td class="num">32,7</td><td class="num gain">+4,68</td><td class="num gain">+4,04</td><td class="num">+1,40</td><td class="num">+2,60</td></tr>
+              <tr><th>002_master_chef_can</th><td class="num">91,6</td><td class="num">+0,95</td><td class="num">+1,00</td><td class="num">+0,05</td><td class="num loss">−0,86</td></tr>
+              <tr><th>011_banana</th><td class="num">45,1</td><td class="num">+0,58</td><td class="num">+0,63</td><td class="num loss">−0,50</td><td class="num loss">−1,05</td></tr>
+              <tr><th>025_mug</th><td class="num">53,6</td><td class="num">+0,25</td><td class="num">+0,33</td><td class="num">+1,12</td><td class="num loss">−0,10</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Trois objets sur cinq sont dans ±1. Sur cinq objets, c'est exactement le régime que
+        le rapport dénonce ailleurs. Réserve supplémentaire : trois échantillons sur soixante
+        (la tasse) avaient 12 à 25 % de leurs contacts hors de la grille [−1, 1], donc un
+        guidage tronqué — à corriger, mais la tasse est un objet nul, ça ne fabrique pas le
+        résultat.</p>
+      </details>
+
+      <details>
+        <summary>Deux choses mesurées plutôt que supposées avant de lancer</summary>
+        <p><strong>Le signe du champ.</strong> La contrainte de normale impose une direction au
+        gradient ; se tromper de signe aurait demandé à la surface de retourner sa normale.
+        Mesuré : <code>champ(p+εn) − champ(p−εn) &gt; 0</code> sur <strong>8 contacts sur
+        8</strong> → l'extérieur est positif.</p>
+        <p><strong>L'équilibre des deux termes.</strong> L'écart au zéro est en unités de champ
+        au carré, le cosinus est sans dimension. Le poids est calibré une fois, au premier pas
+        guidé, pour que les deux <em>gradients</em> aient des normes égales — sinon le résultat
+        aurait mesuré un choix d'échelle.</p>
+        <p><strong>Détail d'implémentation.</strong> Le gradient du champ aux contacts passe par
+        des différences finies centrées (six évaluations trilinéaires de plus par contact), et
+        non par autograd sur les points : celui-ci imposerait un double rétropropagé à travers
+        le décodeur d'ondelettes, que MPS ne garantit pas — même famille de problème que le
+        <code>grid_sampler_3d_backward</code> absent qui avait déjà imposé d'écrire
+        l'interpolation trilinéaire à la main.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section class="block">
+    <div class="rail"><div class="rail-inner">
+      <span class="status st-neuf">Mesuré 25 août</span>
+      <p class="rail-note">8 exécutions<br>strictement<br>identiques<br>25 min</p>
+    </div></div>
+    <div class="body">
+      <h2>Le plancher : ce que vaut un écart entre deux exécutions identiques</h2>
+      <p>Tout le dépôt compare une génération guidée à un témoin de <strong>même graine</strong>,
+      en supposant que la seule différence entre les deux est le guidage. Relancer huit fois la
+      même commande — même objet, même graine, mêmes contacts — dit autre chose.</p>
+
+      <div class="tablewrap">
+        <table>
+          <caption>Banane, front_back, 8 exécutions strictement identiques</caption>
+          <thead>
+            <tr><th></th><th>Moyenne</th><th>Écart-type</th><th>Étendue</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>Témoin non guidé</th><td class="num">48,59</td><td class="num">0,49</td><td class="num">1,39</td></tr>
+            <tr><th>Guidé</th><td class="num">47,50</td><td class="num">2,29</td><td class="num">6,61</td></tr>
+            <tr class="hi"><th>Différence appariée</th><td class="num">−1,09</td><td class="num">2,50</td><td class="num">7,64</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <h3 style="text-decoration: line-through; opacity:.55">Le guidage amplifie le
+        non-déterminisme d'un facteur 4,7</h3>
+        <p><strong>Réfuté par la mesure du 7 septembre.</strong> Les huit répétitions
+        n'étaient pas identiques : le repère oracle était réestimé depuis le témoin de
+        chacune, donc les contacts fournis au guidage bougeaient. En gelant le repère et en
+        refaisant la mesure :</p>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th></th><th>repère réestimé</th><th>repère gelé</th></tr></thead>
+            <tbody>
+              <tr><th>non guidé</th><td class="num">0,49</td><td class="num">0,68</td></tr>
+              <tr class="hi"><th>guidé</th><td class="num">2,29</td><td class="num">0,70</td></tr>
+              <tr><th>différence appariée</th><td class="num">2,50</td><td class="num">1,29</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="verdict">Placement figé, la passe guidée est aussi reproductible que la
+        passe non guidée. <strong>Le guidage n'amplifie rien : 91 % de la variance d'un score
+        guidé vient de la réestimation du placement des contacts.</strong> Le verrou de pose
+        apparaît donc deux fois — il mange le gain moyen, et il domine la variance.</p>
+      </div>
+
+      <p>Conséquence sur le modèle d'erreur : au sein d'une campagne, le repère oracle est
+      calculé une fois par (objet, graine) et partagé par toutes les conditions, donc le bruit
+      de placement <em>s'annule</em> dans les comparaisons entre conditions ; entre campagnes
+      il ne s'annule pas, aucune ne partageant son témoin. Deux erreurs types distinctes,
+      0,26 et 0,91 sur 15 cas — j'avais appliqué 0,91 partout. Toutes les conclusions
+      reposent désormais sur le <strong>test des signes</strong>, qui ne demande aucune
+      estimation de σ : le σ à repère gelé repose sur huit répétitions d'un seul objet, et son
+      intervalle de confiance [0,46 ; 1,42] est trop large pour porter quoi que ce soit.</p>
+
+      <div class="tablewrap">
+        <table>
+          <caption>Ce qui survit — test des signes bilatéral, ex aequo écartés</caption>
+          <thead>
+            <tr><th>Effet</th><th>Valeur</th><th>Signes</th><th>Test bilatéral</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>Campagne 42 objets</th><td class="num gain">+3,21</td><td class="num">83/125</td><td class="tag">p = 3,1e−4</td></tr>
+            <tr><th>4 zones au lieu de 8</th><td class="num loss">−2,55</td><td class="num">3/15</td><td class="tag">p = 0,035</td></tr>
+            <tr><th>Bruit de placement</th><td class="num loss">−2,40</td><td class="num">3/15</td><td class="tag">p = 0,035</td></tr>
+            <tr><th>8 plaques au lieu de 4</th><td class="num gain">+2,22</td><td class="num">12/15</td><td class="tag">p = 0,035</td></tr>
+            <tr><th>DM4 reprojeté</th><td class="num">+0,38</td><td class="num">75/126</td><td class="tag">p = 0,040</td></tr>
+            <tr class="hi"><th>Normales</th><td class="num">+0,93</td><td class="num">10/15</td><td class="tag">p = 0,302 — non</td></tr>
+            <tr class="hi"><th>Visibilité (rl − fb)</th><td class="num">+0,82</td><td class="num">11/15</td><td class="tag">p = 0,118 — non</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section class="block">
+    <div class="rail"><div class="rail-inner">
+      <span class="status st-neuf">Mesuré 1<sup>er</sup> sept.</span>
+      <p class="rail-note">45 générations<br>71 min<br>contacts du<br>simulateur</p>
+    </div></div>
+    <div class="body wide">
+      <h2>La thèse du stage ne survit pas à une vraie prise</h2>
+      <p style="max-width: var(--measure)">Les campagnes précédentes séparaient les contacts par
+      visibilité en partitionnant la surface — une construction, pas un geste. Le simulateur de
+      préhension produit des prises réalisables, et la visibilité en découle au lieu d'être
+      imposée. Trois stratégies, mêmes objets, même cardinalité, six contacts chacune.</p>
+
+      <div class="tablewrap">
+        <table>
+          <caption>5 objets × 3 graines par stratégie, placement oracle</caption>
+          <thead>
+            <tr><th>Stratégie</th><th>Part occultée</th><th>Gain moyen</th><th>Médiane</th><th>Signes</th><th>p</th></tr>
+          </thead>
+          <tbody>
+            <tr><th><code>front_back</code></th><td class="num">0,83</td><td class="num gain">+1,73</td><td class="num">+0,68</td><td class="num">11/15</td><td class="num">0,059</td></tr>
+            <tr><th><code>left_right</code></th><td class="num">0,70</td><td class="num gain">+1,37</td><td class="num">+0,94</td><td class="num">11/15</td><td class="num">0,059</td></tr>
+            <tr class="hi"><th><code>right_left</code></th><td class="num">0,37</td><td class="num gain">+2,55</td><td class="num">+1,64</td><td class="num">11/15</td><td class="num">0,059</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warn">
+        <h3>La stratégie qui touche le moins la face cachée est celle qui gagne le plus</h3>
+        <p class="verdict">Corrélation entre part occultée et gain, sur 45 cas :
+        <strong><span class="num">r = −0,145</span></strong>. Elle va dans le mauvais sens. Et le
+        cas décisif est sans ambiguïté : sur la perceuse, <code>right_left</code> place
+        <strong>zéro contact sur la face occultée</strong> — la main ne touche que ce que la
+        caméra voit déjà — et gagne <span class="num gain">+5,68</span> en moyenne
+        (<span class="num">+9,16 / +0,52 / +7,36</span>).</p>
+      </div>
+
+      <p style="max-width: var(--measure)">Les trois stratégies sont par ailleurs
+      <strong>indiscernables entre elles</strong> : les écarts appariés valent 0,4 à 1,3 erreurs
+      types du plancher. Ce n'est donc pas « l'occultation nuit », c'est
+      <strong>« l'occultation ne prédit rien »</strong>.</p>
+
+      <div class="callout">
+        <h3>Ce que le guidage fait réellement</h3>
+        <p>Mis bout à bout, tout ce qui a été mesuré converge : la densité ne compte pas
+        (32/128/512 indiscernables), les normales ne comptent pas (1,0 σ), la visibilité ne
+        compte pas (r = −0,145), et l'espace libre est redondant. Ce qui compte, c'est
+        <strong>l'étalement</strong> (4 plaques contre 8 : −2,55), la <strong>justesse du
+        placement</strong> (bruit 3 mm : −2,40), et surtout <strong>l'objet</strong>.</p>
+        <p>Le mécanisme cohérent avec tout cela n'est pas « le toucher complète ce que la vision
+        ne voit pas », mais <strong>« quelques ancres vraies régularisent la sortie d'un a priori
+        génératif »</strong> — elles fixent position, échelle et orientation globales, et peu
+        importe de quel côté elles se trouvent. C'est une contribution plus modeste que celle
+        annoncée, et mieux étayée.</p>
+      </div>
+
+      <details>
+        <summary>Détail par objet — et pourquoi il faut rester prudent</summary>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr><th>Objet</th><th>front_back</th><th>left_right</th><th>right_left</th></tr>
+            </thead>
+            <tbody>
+              <tr><th>035_power_drill</th><td class="num gain">+6,63 <span class="mono">(0,83)</span></td><td class="num gain">+5,96 <span class="mono">(0,67)</span></td><td class="num gain">+5,68 <span class="mono">(0,00)</span></td></tr>
+              <tr><th>006_mustard_bottle</th><td class="num">+1,84 <span class="mono">(0,83)</span></td><td class="num">+1,90 <span class="mono">(0,50)</span></td><td class="num gain">+5,15 <span class="mono">(0,50)</span></td></tr>
+              <tr><th>002_master_chef_can</th><td class="num">+0,96 <span class="mono">(0,83)</span></td><td class="num">+0,79 <span class="mono">(0,83)</span></td><td class="num">+1,98 <span class="mono">(0,33)</span></td></tr>
+              <tr><th>025_mug</th><td class="num loss">−0,80 <span class="mono">(0,83)</span></td><td class="num">+2,41 <span class="mono">(0,67)</span></td><td class="num">+1,82 <span class="mono">(0,83)</span></td></tr>
+              <tr><th>011_banana</th><td class="num">+0,02 <span class="mono">(0,83)</span></td><td class="num loss">−4,20 <span class="mono">(0,83)</span></td><td class="num loss">−1,86 <span class="mono">(0,17)</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Entre parenthèses, la part de contacts occultés. La perceuse porte une part importante
+        du total dans les trois colonnes, et cinq objets ne font pas une population. Le résultat
+        solide est le <strong>négatif</strong> — l'absence de relation entre occultation et gain —
+        pas l'ordre des trois stratégies, qui n'est pas significatif.</p>
+        <p>À noter enfin : <code>front_back</code> donne <span class="num">+1,73</span> ici contre
+        <span class="num">+3,25</span> pour <code>dh8</code> plus haut. Mêmes objets, même
+        cardinalité, même placement oracle — mais les contacts du simulateur sont resserrés
+        (écart min 0,058-0,344) là où mes plaques sont étalées (0,446-1,281). L'écart va dans le
+        sens prédit avant la mesure.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section class="block">
+    <div class="rail"><div class="rail-inner">
+      <span class="status st-neuf">Mesuré 25 août</span>
+      <p class="rail-note">témoin sans<br>modèle génératif<br>5 objets</p>
+    </div></div>
+    <div class="body">
+      <h2>Ce que les contacts valent seuls</h2>
+      <p>Le simulateur de préhension du dépôt (<code>grasp-dataset-gen</code>) produit six
+      contacts orientés par saisie, un par zone de doigt, dont cinq sur la face occultée.
+      Reconstruits par Poisson — qui consomme précisément des points orientés — ils donnent une
+      surface <strong>fermée</strong> dans 9 cas sur 10. Ce n'est pas du gravier.</p>
+
+      <div class="tablewrap">
+        <table>
+          <caption>F-Score @2 %, mêmes 5 objets, même notation</caption>
+          <tbody>
+            <tr><th>Poisson, 6 contacts orientés</th><td class="num">19,81</td></tr>
+            <tr><th>Poisson, 18 contacts (3 prises)</th><td class="num">20,31</td></tr>
+            <tr class="hi"><th>WaLa, image seule</th><td class="num">56,52</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Six contacts orientés reconstruisent une forme, à <strong>35 % du niveau que l'image
+      seule atteint déjà</strong>. Le cadrage « contrainte, pas générateur » cesse d'être un
+      argument sur le régime de données : c'est une mesure. Et tripler les contacts ne rapporte
+      qu'un demi-point — la même platitude que partout ailleurs, dans une méthode qui n'a rien
+      à voir avec la diffusion.</p>
+
+      <div class="callout">
+        <h3>Deux réserves, toutes deux optimistes</h3>
+        <p>La profondeur d'octree est choisie <em>après coup contre la vérité terrain</em> (elle
+        saute de 3 à 6 selon le cas — aucun système ne peut faire ça), et la notation applique
+        le recalage sur la référence. Le vrai chiffre d'un système est sous
+        <span class="num">19,81</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section class="block">
+    <div class="rail"><div class="rail-inner">
+      <span class="status st-absent">Non mesuré</span>
+      <p class="rail-note">la condition qui<br>répond littéralement<br>à la question</p>
+    </div></div>
+    <div class="body">
+      <h2>Ce qui manque, et qu'il ne faut pas déduire</h2>
+      <p>Le bruit de placement et la réduction à quatre zones ont été mesurés
+      <strong>séparément</strong>, jamais ensemble, et toujours avec la pose donnée
+      gratuitement. Additionner des effets mesurés séparément ne fait pas un résultat. Mais
+      chaque ingrédient soustrait, et il en reste un quatrième non appliqué ici : le passage de
+      la pose oracle à la pose estimée coûte un facteur <span class="num">3,8</span> sur la
+      campagne de référence (<span class="num">+6,77 → +1,79</span>).</p>
+
+      <div class="callout warn">
+        <h3>La vraie condition DH116, jamais mesurée</h3>
+        <p>Six contacts <em>du simulateur de préhension</em> — pas mes plaques idéalement
+        réparties — avec normales, bruit de placement, et pose estimée par silhouette.
+        L'écart entre les deux modèles de contact est le point décisif :</p>
+        <div class="tablewrap">
+          <table>
+            <caption>Écart minimal entre contacts, repère normalisé [−1, 1]</caption>
+            <tbody>
+              <tr><th>Mes plaques (échantillonnage du plus lointain)</th><td class="num">0,446 – 1,281</td></tr>
+              <tr class="hi"><th>Simulateur, préhension anatomique</th><td class="num">0,058 – 0,344</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Une main ne répartit pas ses doigts : les quatre longs doigts couvrent 80° d'arc,
+        tous du même côté. Sur la perceuse, deux contacts tombent à
+        <span class="num">0,058</span> l'un de l'autre — contrainte redondante. Or l'étalement
+        est précisément ce que le balayage de sites désigne comme décisif
+        (4 plaques : <span class="num loss">−0,42</span> ; 8 :
+        <span class="num gain">+1,79</span>).</p>
+      </div>
+
+      <p class="verdict">Pronostic consigné <strong>avant</strong> la mesure, pour qu'il soit
+      réfutable : nul, dans le bruit. Ce serait un bon résultat de mémoire — une limite
+      quantifiée avec le mécanisme isolé, pas un échec.</p>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────── -->
+  <section class="block">
+    <div class="rail"><div class="rail-inner">
+      <span class="status st-faire">À faire</span>
+      <p class="rail-note">par ordre<br>de rapport<br>au calcul</p>
+    </div></div>
+    <div class="body">
+      <h2>La suite</h2>
+
+      <h3>1. Les stratégies de préhension — <em>fait, voir ci-dessus</em></h3>
+      <p>Le simulateur produit des prises réalisables, et la visibilité des contacts en découle
+      au lieu d'être imposée par une partition de la surface : <code>front_back</code> met
+      <strong>5 contacts sur 6 du côté occulté pour les cinq objets</strong>,
+      <code>right_left</code> tombe à 0/6 sur la perceuse et 1/6 sur la banane. Si le gain suit
+      l'occultation à cardinalité et objet identiques, la thèse du stage tient sur un geste et
+      non sur une construction.</p>
+      <p>Lancé et terminé en 71 min. <strong>Le gain ne suit pas l'occultation</strong>
+      (r = −0,145) et les trois stratégies sont indiscernables. Ce qui reste à faire dessus :
+      passer à <strong>5 graines et aux 103 objets</strong> du jeu <code>output_hf</code>, seule
+      façon de savoir si le négatif tient — le bruit à réduire est celui de l'exécution, et seule
+      la répétition le réduit.</p>
+
+      <h3>2. L'espace libre le long des rayons d'approche — testé, inerte</h3>
+      <p>Le terme est implémenté et vérifié : charnière unilatérale pénalisant la matière aux
+      points que le doigt a traversés. Il ne sert à rien. Sur 133 points d'espace libre,
+      <strong>zéro ne dit « matière »</strong> — la perte vaut exactement zéro à chaque pas,
+      donc son gradient aussi.</p>
+      <p>La raison est nette une fois vue : un doigt approche <em>depuis l'extérieur</em>, et une
+      reconstruction même mauvaise reste un objet à peu près de la bonne taille au bon endroit.
+      Les corridors d'approche sont vides dans la prédiction comme dans la réalité.
+      <strong>Cet espace libre est redondant avec ce que le modèle croit déjà.</strong></p>
+      <p>Les deux variantes qui traverseraient là où le modèle <em>met</em> de la matière restent
+      ouvertes : les doigts qui se referment <strong>sans rien toucher</strong> — que le
+      simulateur ne produit pas mais que la main réelle fournit, l'auriculaire allant jusqu'à sa
+      butée à 245 ‰ sans rien rencontrer — et le <strong>cône de vue de la caméra</strong>.</p>
+
+      <h3>2 bis. La convention de signe, désormais établie globalement</h3>
+      <p>Points strictement intérieurs au maillage de référence : médiane
+      <span class="num">−0,0998</span>. Extérieurs : <span class="num">+0,0999</span>. C'est une
+      TSDF tronquée à ±0,10, matière négative. La sonde initiale ne mesurait qu'une propriété
+      <em>locale</em> au voisinage d'un contact, suffisante pour le terme de normale mais pas
+      pour l'espace libre.</p>
+
+      <h3>3. Reprendre le rapport sur DM4</h3>
+      <p>L'encadré du 13 août est contredit par la mesure du soir même.</p>
+
+      <div class="callout">
+        <h3>Ce qu'il ne faut pas faire : réinjecter Poisson</h3>
+        <p>La surface de Poisson est une <strong>interpolation des mêmes six contacts</strong>.
+        Elle n'ajoute pas d'information, elle ajoute des hypothèses — et à
+        <span class="num">F@2 ≈ 20</span>, l'essentiel est au mauvais endroit. La réinjecter
+        comme contacts convertirait six contraintes vraies en des centaines de contraintes
+        majoritairement fausses. Toute la valeur du guidage tient à ce que
+        <code>SDF(p) = 0</code> soit <em>vrai</em> aux points imposés.</p>
+        <p>Comme conditionnement de WaLa-PC ou VX16, c'est la technique n° 1/2, close pour des
+        raisons indépendantes. Reste l'initialisation façon SDEdit dans le latent d'ondelettes —
+        non testée, mais un point de départ à <span class="num">F@2 ≈ 20</span> s'efface s'il est
+        bruité fort et verrouille ses erreurs s'il l'est peu.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="fgrid">
+      <div>
+        <strong>Campagnes</strong><br>
+        <code>run_dh116_regime.py</code> → <code>dh116_regime.json</code><br>
+        <code>plancher_reproductibilite.py</code> → <code>plancher.json</code><br>
+        <code>run_strategies.py</code> → <code>strategies.json</code><br>
+        126 + 25 + 71 min · 128 générations
+      </div>
+      <div>
+        <strong>Modifications</strong><br>
+        <code>guided_sampling.py</code> — normales, espace libre<br>
+        <code>make_contacts.py</code> — <code>return_normals</code><br>
+        <code>make_contacts_dh116.py</code><br>
+        <code>make_contacts_strategies.py</code><br>
+        <code>probe_field_sign.py</code>
+      </div>
+      <div>
+        <strong>Réglages</strong><br>
+        WaLa-SV-1B · poids 0,05<br>
+        20 pas · échelle 1,5<br>
+        ε = 0,03 · <span class="mono">field_sign = +1</span>
+      </div>
+      <div>
+        <strong>Réserves permanentes</strong><br>
+        Placement oracle sauf mention<br>
+        Images synthétiques Blender<br>
+        Contacts simulés, aucun capteur réel<br>
+        5 objets — aucune généralisation<br>
+        Plancher d'exécution σ 2,50
+      </div>
+    </div>
+  </footer>
+
+</div>
+

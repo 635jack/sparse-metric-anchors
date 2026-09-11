@@ -1,0 +1,91 @@
+%% ---------------------------------------------------------------------------
+%% fig_method.tex -- method figure, shared geometry between icra_en and icra_fr.
+%%
+%% The calling document must define the label macros BEFORE \input-ing this file:
+%%   \lblUnet \lblCond \lblDec \lblField \lblContacts \lblInterp \lblGrad
+%%   \lblLoop \lblMc \lblNote \lblBoxA \lblBoxB
+%% See the definitions in either paper for the expected wording.
+%%
+%% One figure, one claim: the correction acts on zhat_0 INSIDE the loop, through
+%% a differentiable decode. Marching cubes sits outside, because it is not
+%% differentiable -- and the guidance never needs it.
+%%
+%% Layout: two rows, columns aligned so every arrow is orthogonal. The two rows
+%% are joined on the right (field -> interpolation) and on the left (correction
+%% -> zhat_0), which is what makes the loop legible.
+%% ---------------------------------------------------------------------------
+
+\begin{tikzpicture}[
+  font=\small,
+  >={Stealth[length=2.4mm]},
+  box/.style    ={draw=lineC, fill=white, rounded corners=1.5pt, inner sep=5pt,
+                  align=center, minimum height=9mm},
+  op/.style     ={box, fill=accentL, draw=accent},
+  data/.style   ={box, fill=white, draw=lineC},
+  meas/.style   ={box, fill=goodL, draw=good, very thick},
+  export/.style ={box, fill=black!5, draw=lineC, dashed},
+  flow/.style   ={->, draw=accent, thick},
+  back/.style   ={->, draw=bad, very thick},
+  side/.style   ={->, draw=good, very thick},
+  lbl/.style    ={font=\scriptsize, inner sep=2pt},
+]
+
+% ---- geometry --------------------------------------------------------------
+\def\rowA{0}        % sampler row
+\def\rowB{-2.7}     % geometric-residual row
+\def\cA{0}   \def\cB{2.3}  \def\cC{4.9}
+\def\cD{8.3} \def\cE{11.3} \def\cF{14.3}
+
+% ---- top row: the sampler --------------------------------------------------
+\node[data] (xt)   at (\cA,\rowA) {$x_t$};
+\node[op]   (unet) at (\cB,\rowA) {\lblUnet};
+\node[data] (z)    at (\cC,\rowA) {$\hat{z}_0$};
+\node[op]   (dec)  at (\cD,\rowA) {\lblDec};
+\node[data] (phi)  at (\cE,\rowA) {$\Phi \in \mathbb{R}^{256^3}$\\[-2pt]
+                                   {\scriptsize\lblField}};
+
+\draw[flow] (xt)   -- (unet);
+\draw[flow] (unet) -- (z);
+\draw[flow] (z)    -- (dec);
+\draw[flow] (dec)  -- (phi);
+
+% conditioning image enters the network from below, clear of the loop arrow
+\node[lbl, align=center] (cond) at (\cB,-1.35) {\lblCond};
+\draw[flow] (cond) -- (unet);
+
+% ---- bottom row: the geometric residual ------------------------------------
+\node[meas] (pts)  at (\cF,\rowB) {\lblContacts};
+\node[op]   (int)  at (\cE,\rowB) {\lblInterp};
+\node[op]   (loss) at (\cD,\rowB) {$\mathcal{L}=\frac{1}{N}\sum_i \Phi(p_i)^2$};
+\node[op]   (grad) at (\cC,\rowB) {$\hat{z}_0 - w\,\lVert\hat{z}_0\rVert\,\hat{g}$\\[-1pt]
+                                   {\scriptsize $\hat{g}=\nabla\mathcal{L}/\lVert\nabla\mathcal{L}\rVert$}};
+
+\draw[side] (pts)  -- (int);
+\draw[flow] (phi)  -- (int);          % vertical: columns are aligned
+\draw[flow] (int)  -- (loss);
+\draw[back] (loss) -- (grad);
+
+% the correction returns to zhat_0 -- the whole point of the figure
+\draw[back] (grad) -- (z)
+  node[lbl, midway, right, text=bad, align=left] {\lblGrad};
+
+% ---- the loop --------------------------------------------------------------
+\draw[flow] (z.north) -- ++(0,0.95) -| (xt.north)
+  node[lbl, pos=0.25, above] {\lblLoop};
+
+% ---- outside the loop: mesh export -----------------------------------------
+\node[export] (mc) at (\cF,\rowA) {\lblMc};
+\draw[flow, dashed] (phi) -- (mc);
+\node[lbl, above=1.5mm of mc, text=black!55, align=center] {\lblNote};
+
+% ---- framing ---------------------------------------------------------------
+\begin{scope}[on background layer]
+  \node[fit=(grad)(loss)(int)(pts), draw=accent, dashed, rounded corners=3pt,
+        inner sep=8pt, fill=accent!4] (boxA) {};
+\end{scope}
+\node[lbl, text=accent, anchor=south east, yshift=1mm] at (boxA.north east)
+  {\lblBoxA};
+\node[lbl, text=black!55, anchor=north east, yshift=-1mm] at (boxA.south east)
+  {\lblBoxB};
+
+\end{tikzpicture}

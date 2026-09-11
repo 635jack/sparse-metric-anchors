@@ -1,0 +1,32 @@
+The Materials are licensed under the Autodesk Non-Commercial License (3D Generative)
+v1.0, Copyright Autodesk, Inc. All Rights Reserved.
+
+This repository distributes a Derivative Work of the WaLa code base
+(https://github.com/AutodeskAILab/WaLa). As required by Section 4.1 of that licence,
+the Materials have been changed, and the changes are the following.
+
+Changes to the model code in src/, relative to the public WaLa repository:
+
+  1. Apple Silicon support: the model runs on the Metal (MPS) backend. This required
+     converting float64 tensors to float32 at several points, a native build path for
+     the sparse-convolution dependency, and small JSON fixes in the shipped configs.
+
+  2. Memory: gradient checkpointing on the diffusion transformer, which lowers the
+     peak memory of a backward pass through the model from about 21 GB to about 6.5 GB
+     and makes gradient-based guidance feasible on a laptop-class GPU.
+
+  3. A learned fusion module, added for the paper's negative baseline (Section VI-E):
+     a cross-attention block with an exact pass-through at initialisation, and geometry
+     encoders for voxel and point-cloud inputs, trained on top of the frozen model. It
+     is off by default and is not used by the anchoring method.
+
+  4. Three upstream pull requests of the public repository merged in: additional
+     conditioning modalities, a norm-layer argument on DiT blocks for timm
+     compatibility, and the optimised-inference path.
+
+The constraint-anchoring method itself (tools/guided_sampling.py) does not modify the
+model or its weights. It wraps the denoising network at sampling time and corrects its
+prediction with the gradient of a geometric residual.
+
+Model weights are not distributed here. They are fetched from the Hugging Face hub
+under their own licence.

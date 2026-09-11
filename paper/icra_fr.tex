@@ -1,0 +1,806 @@
+%% ---------------------------------------------------------------------------
+%% Ancres métriques éparses pour un a priori génératif 3D mono-vue
+%% Version française du papier au format ICRA (IEEEtran, conference).
+%%
+%% ICRA se soumet en anglais : cette version sert au mémoire et à la relecture
+%% interne. La version de soumission est icra_en.tex, et les deux doivent rester
+%% synchronisées (mêmes chiffres, mêmes tableaux, même structure).
+%%
+%% Compilation :  tectonic -X compile icra_fr.tex
+%% Piège : le caractère « œ » n'existe pas dans la police T1 utilisée et
+%% disparaissait SILENCIEUSEMENT du PDF. Utiliser \oe{} et non le caractère brut.
+%%
+%% Recadré le 2026-09-11. La version antérieure (« Le toucher comme contrainte,
+%% pas comme générateur ») mettait le toucher en premier et le problème du repère
+%% en second. Les données disent l'inverse : le repère est le verrou de TOUTE ancre
+%% métrique éparse, toucher et profondeur confondus, et il gouverne autant le gain
+%% moyen que la variance.
+%% ---------------------------------------------------------------------------
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{balance}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cite}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\definecolor{accent}{HTML}{2C5B79}
+\definecolor{accentL}{HTML}{E7EFF5}
+\definecolor{good}{HTML}{2A6B58}
+\definecolor{goodL}{HTML}{E3EFEA}
+\definecolor{bad}{HTML}{96412F}
+\definecolor{lineC}{HTML}{95A1AD}
+
+% --- libelles pour fig_method.tex ---
+\newcommand{\lblUnet}{réseau de\\débruitage}
+\newcommand{\lblCond}{image unique}
+\newcommand{\lblDec}{décodage\\{\scriptsize ondelettes $\rightarrow$ SDF}}
+\newcommand{\lblField}{champ de distance signée}
+\newcommand{\lblContacts}{ancres $p_i$\\{\scriptsize mesurées}}
+\newcommand{\lblInterp}{trilinéaire\\{\scriptsize écrite à la main}}
+\newcommand{\lblGrad}{correction sur $\hat{z}_0$}
+\newcommand{\lblLoop}{pas de débruitage suivant}
+\newcommand{\lblMc}{marching\\cubes}
+\newcommand{\lblNote}{une fois, à la fin\\(non différentiable)}
+\newcommand{\lblBoxA}{différentiable, à chaque pas}
+\newcommand{\lblBoxB}{aucune prédiction n'est mélangée à une autre}
+
+% --- libelles pour fig_results.tex ---
+\newcommand{\rlblZones}{4 zones au lieu de 8}
+\newcommand{\rlblNoise}{bruit de placement 3\,mm / $15^\circ$}
+\newcommand{\rlblPatchHi}{32 plaques au lieu de 8}
+\newcommand{\rlblDens}{512 ancres au lieu de 32}
+\newcommand{\rlblVis}{ancres hors de la face cachée}
+\newcommand{\rlblNorm}{normales ajoutées}
+\newcommand{\rlblPatchLo}{8 plaques au lieu de 4}
+\newcommand{\rlblXlab}{écart apparié de F-Score@2\,\%}
+\newcommand{\rlblPanelA}{Ce qu'un jeu d'ancres exige, et ce qu'il n'exige pas}
+\newcommand{\rlblPanelB}{La visibilité ne prédit pas le gain}
+\newcommand{\rlblXlabB}{part d'ancres occultées}
+\newcommand{\rlblYlabB}{gain, F@2\,\%}
+\newcommand{\rlblZero}{aucune ancre sur\\la face cachée}
+
+\newcommand{\gd}[1]{\textbf{#1}}
+\newcommand{\lo}[1]{\textbf{#1}}
+\newcommand{\Fs}{F@2\,\%}
+
+\title{\LARGE\bf Ancres métriques éparses pour un a priori génératif 3D mono-vue :\\
+le verrou est le repère de sortie}
+
+\author{%
+  \IEEEauthorblockN{Nom de l'auteur}
+  \IEEEauthorblockA{Institut des Systèmes Intelligents et de Robotique (ISIR)\\
+  Sorbonne Université, Paris, France\\
+  \texttt{auteur@isir.upmc.fr}}%
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Un modèle génératif 3D mono-vue fournit un a priori de forme fort ; un robot fournit
+quelques mesures métriques --- une poignée de contacts, une carte de profondeur. Nous
+demandons ce qui limite l'injection de mesures aussi éparses dans un a priori
+pré-entraîné, et trouvons que ce n'est ni leur nombre, ni leur contenu, ni la face de
+l'objet qu'elles touchent. C'est le \emph{repère de sortie} du générateur. Sur un
+modèle de diffusion à latent d'ondelettes d'un milliard de paramètres, nous montrons
+que la pose de la forme générée n'est pas une fonction de l'image d'entrée : elle est
+rééchantillonnée avec la graine de bruit, et se déplace de $130^\circ$ en médiane
+d'une graine à l'autre sur 42 objets YCB. Deux voies d'ancrage sont ensuite mesurées
+contre ce fait. Injecter des contacts comme contrainte différentiable pendant
+l'échantillonnage, sans entraînement, améliore le F-Score@2\% de $+3{,}21$ ($p =
+3{,}1\times10^{-4}$, test des signes), contre $+8{,}05$ lorsque le repère est donné :
+l'estimation du repère consomme 60 à 74~\% du gain atteignable, et 91~\% de la
+variance d'une exécution à l'autre. Ancrer le repère par conditionnement, en
+reprojetant une seule carte de profondeur dans les vues canoniques d'une variante
+multi-vues, fixe la pose à $\pm 2^\circ$ et gagne $+11{,}2$ en moyenne --- mais
+l'effet est bimodal, perdant $-22$ sur les solides de révolution, et aucun sélecteur
+sans vérité terrain testé n'atteint les $72{,}2$ qu'un oracle par objet obtient.
+Empiler les contacts sur le repère ancré ajoute $+0{,}38$. Sur sept manipulations
+contrôlées, ce qu'un jeu d'ancres exige est l'étalement spatial et la justesse du
+placement ; le nombre, les normales et la visibilité ne comptent pas, et des ancres
+sur la face que la caméra voit déjà valent autant que des ancres sur celle qu'elle ne
+voit pas. Cinq formulations de fusion alternatives qui traitent les mesures comme un
+générateur échouent toutes pour cette seule cause, que nous quantifions sans aucun
+modèle de diffusion : six contacts orientés reconstruits par Poisson atteignent
+$19{,}4$ \Fs{} contre $56{,}5$ pour l'image seule.
+\end{abstract}
+
+% ===========================================================================
+\section{Introduction}
+% ===========================================================================
+
+Les grands modèles génératifs 3D pré-entraînés reconstruisent un objet plausible à
+partir d'une image unique. Un robot qui tient cet objet sait des choses que l'image ne
+dit pas : où sont ses doigts, et la profondeur de ce que la caméra voit. La question
+naturelle est comment injecter ces mesures dans un modèle qui n'a jamais été entraîné
+à les recevoir.
+
+Ce travail a commencé comme une étude du toucher --- une poignée de contacts tactiles
+peut-elle améliorer une reconstruction mono-image --- et son résultat central est que
+la question était posée sur le mauvais axe. Les contacts aident, modestement et
+significativement. Mais ce qui décide de combien ils aident n'a rien à voir avec les
+contacts : ni leur nombre sur une plage de $16\times$, ni la présence d'une normale,
+ni le fait qu'ils soient sur la face que la caméra ne voit pas. Ce qui décide est de
+savoir si les mesures peuvent être placées dans le repère où le générateur produit sa
+forme --- et ce repère, nous le montrons, n'est pas une fonction de l'entrée. Il est
+tiré avec le bruit.
+
+Nous traitons donc le problème comme un problème d'\emph{ancrage} d'un a priori par
+des mesures métriques éparses, et nous utilisons deux sources de mesure comme deux
+sondes du même verrou. Les contacts tactiles entrent comme contrainte différentiable
+appliquée pendant l'échantillonnage, sans entraînement. Une carte de profondeur unique
+entre comme signal de conditionnement, reprojetée dans les vues canoniques d'une
+variante multi-vues de la même ossature. La première ne peut pas fixer le repère et le
+paie ; la seconde le fixe, mais en tendant au modèle une preuve qu'il traite comme
+réelle, avec des conséquences qui dépendent de l'objet. Aucune n'est une solution. Les
+deux ensemble localisent le problème.
+
+\subsection{Contributions}
+\begin{enumerate}
+  \item \textbf{La pose de sortie d'un modèle de diffusion 3D mono-vue n'est pas
+  apprenable depuis son entrée} : sur trois graines de bruit et la même image, elle se
+  déplace de $130^\circ$ en médiane sur 42 objets, les objets asymétriques n'étant pas
+  plus stables que les symétriques (Sec.~\ref{sec:frame}).
+  \item Un \textbf{schéma d'ancrage par contrainte sans entraînement}, différentiable
+  de bout en bout à l'échantillonnage, et la mesure de ce que le repère lui coûte :
+  $+3{,}21$ réalisé contre $+8{,}05$ repère donné
+  (Secs.~\ref{sec:constraint}, \ref{sec:res-constraint}).
+  \item Un \textbf{schéma d'ancrage par conditionnement} par reprojection de
+  profondeur, qui fixe le repère et gagne $+11{,}2$, avec le constat que le gain est
+  bimodal et que le sélecteur sans vérité terrain évident échoue
+  (Secs.~\ref{sec:conditioning}, \ref{sec:res-conditioning}).
+  \item Une \textbf{caractérisation de ce qu'un jeu d'ancres doit être} : sept
+  manipulations contrôlées montrent que l'étalement et la justesse du placement
+  comptent, tandis que le nombre, les normales et la visibilité ne comptent pas
+  (Sec.~\ref{sec:res-anchor}).
+  \item Une \textbf{décomposition de la variance} d'une exécution à l'autre, montrant
+  que 91~\% en vient de la réestimation du repère et non du guidage, et trois pièges
+  d'évaluation qui ont chacun renversé silencieusement une conclusion
+  (Sec.~\ref{sec:methodology}).
+\end{enumerate}
+
+% ===========================================================================
+\section{Travaux connexes}
+% ===========================================================================
+
+\textbf{Reconstruction de forme visuo-tactile.} Les travaux antérieurs combinent les
+deux modalités soit en fusionnant des représentations apprises~\cite{smith2020,smith2021},
+soit en accumulant des contacts denses dans une surface implicite~\cite{suresh2022}.
+Les deux supposent assez de données tactiles pour décrire une forme :
+\cite{smith2020} apprend une fusion par cartes à partir de touchers simulés sur un
+grand ensemble d'objets, et \cite{suresh2022} intègre des relevés GelSight denses dans
+une surface implicite par processus gaussien. Notre régime est l'inverse. Une saisie
+avec une main à neuf zones rend un nombre de contacts à un seul chiffre, trop peu pour
+ajuster une surface ; leur valeur est d'être des ancres sur un a priori, non un signal
+à reconstruire. La Sec.~\ref{sec:fusions} montre que les formulations qui les traitent
+en générateur échouent toutes pour une même raison.
+
+\textbf{Modèles génératifs 3D.} Nous partons de WaLa~\cite{wala}, un modèle de
+diffusion à latent d'ondelettes d'un milliard de paramètres qui prédit directement
+$\hat{z}_0$ et le décode en champ de distance signée $256^3$. Sa variante mono-vue est
+notre ossature principale ; sa variante à quatre vues de profondeur est le véhicule de
+la Sec.~\ref{sec:conditioning}. Nous ne réentraînons rien.
+
+\textbf{Guidage dans les modèles de diffusion.} Le guidage par classifieur
+\cite{dhariwal} et le guidage sans classifieur~\cite{cfg} orientent l'échantillonnage
+vers une condition. Notre schéma par contrainte est le plus proche du premier par
+l'esprit, mais n'utilise aucun classifieur : la correction est le gradient analytique
+d'un résidu géométrique, donc sans paramètre appris ni distribution d'entraînement à
+quitter.
+
+\textbf{Génération conditionnée par la pose.} Zero-1-to-3~\cite{zero123} conditionne
+sur une transformation caméra relative explicite ; les méthodes stéréo par passe avant
+comme DUSt3R~\cite{dust3r} régressent la pose directement depuis une paire d'images.
+Une initialisation façon SDEdit~\cite{sdedit} offre une troisième voie, que nous
+discutons sans la tester. La Sec.~\ref{sec:frame} explique pourquoi aucune n'est un
+correctif immédiat ici : l'ossature mono-vue ne reçoit aucune information de caméra, et
+les variantes qui en reçoivent détruisent précisément la marge que les mesures devaient
+combler.
+
+% ===========================================================================
+\section{Le repère de sortie n'est pas une fonction de l'entrée}
+\label{sec:frame}
+% ===========================================================================
+
+Les mesures vivent dans le repère du capteur ; le générateur produit dans un repère
+canonique qui lui est propre. Tout schéma d'ancrage doit envoyer l'un sur l'autre.
+Avant de demander avec quelle précision, nous demandons si la cible de cette
+application existe.
+
+\textbf{La cause, en une ligne de configuration.} L'ossature mono-vue déclare
+\texttt{use\_camera\_index = False} : la fonction qui extrait l'indice de vue renvoie
+\texttt{None}, et le modèle ne reçoit aucune information sur la caméra. Il n'y a donc
+aucune convention de repère à retrouver ; la pose de sortie est ce que le contenu de
+l'image et le bruit produisent.
+
+\textbf{La pose est rééchantillonnée avec le bruit.} Le correctif le moins coûteux
+imaginable serait de régresser la rotation de sortie depuis l'image, sans réentraîner
+le générateur. Il présuppose que la pose soit une fonction de l'image. En comparant les
+rotations obtenues pour trois graines de bruit sur la \emph{même} image, sur 42
+objets, l'écart médian entre graines vaut $140{,}5^\circ$ pour les objets asymétriques
+et $129{,}8^\circ$ pour les symétriques ; 1 objet asymétrique sur 16 est stable sous
+$30^\circ$, 0 sur 26 chez les symétriques ; la corrélation asymétrie / stabilité vaut
+$-0{,}073$. Le partage par symétrie écarte un artefact de mesure --- deux sorties
+identiques d'un solide de révolution se recalent avec des rotations très différentes
+--- et les objets asymétriques, dont l'orientation est identifiable, ne sont \emph{pas
+plus stables}. Aucun régresseur ne peut apprendre cette pose : non faute du bon
+estimateur, mais parce que la cible n'existe pas.
+
+\textbf{Les modèles qui reçoivent la pose l'ancrent.} Les variantes multi-vues de la
+même ossature déclarent \texttt{use\_camera\_index = True} et prennent quatre images
+avec leur indice dans un rig canonique à 55 positions. Leur rotation entre prédiction
+et référence est reproductible à $0{,}8^\circ$ d'une graine à l'autre et identique sur
+tous les objets bien contraints. Mais quatre vues résolvent aussi la reconstruction
+--- jusqu'à $99{,}9$ \Fs{} sur des objets que le mono-vue note entre $23$ et $59$ ---
+ne laissant rien à ajouter à une mesure. \textbf{Pose et marge ne coexistent dans
+aucune variante publiée.} C'est la tension que les deux voies d'ancrage ci-dessous
+doivent négocier.
+
+% ===========================================================================
+\section{Deux façons d'ancrer}
+% ===========================================================================
+
+\subsection{Ancrage par contrainte pendant l'échantillonnage}
+\label{sec:constraint}
+
+L'ossature prédit directement $\hat{z}_0$ plutôt que le résidu de bruit : la sortie du
+réseau \emph{est} donc l'estimation de forme courante, et peut être corrigée sans
+toucher au calendrier de bruit ni à l'échantillonneur. À chaque pas, nous décodons
+$\hat{z}_0$ en champ de distance signée dense $\Phi(\hat{z}_0) \in
+\mathbb{R}^{256^3}$, l'évaluons aux $N$ points d'ancrage $p_i$, et avançons selon le
+gradient de
+
+\begin{equation}
+  \mathcal{L}_{\text{pos}} \;=\; \frac{1}{N}\sum_{i=1}^{N}
+  \Big[\, \mathcal{T}\big(\Phi(\hat{z}_0),\, p_i \big) \Big]^2 ,
+  \label{eq:loss}
+\end{equation}
+
+où $\mathcal{T}$ est l'interpolation trilinéaire. La contrainte imposée est simplement
+\emph{la surface passe par ces points} (Fig.~\ref{fig:method}). Le pas est normalisé,
+$\Delta = w \,\lVert \hat{z}_0 \rVert \, \nabla \mathcal{L} / \lVert \nabla
+\mathcal{L}\rVert$, pour que le poids $w$ ne dépende ni de l'échelle du champ ni de
+celle du latent, qui dérivent tous deux pendant l'échantillonnage.
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{\input{fig_method}}
+\caption{\textbf{L'ancrage par contrainte, à sa place.} La correction agit sur le
+$\hat{z}_0$ prédit \emph{à l'intérieur} de la boucle de débruitage, à travers un
+décodage différentiable de bout en bout ; les ancres sont la seule grandeur mesurée
+du schéma (en vert). Les marching cubes sont hors de la boucle parce qu'ils ne sont pas
+différentiables --- et le guidage n'a jamais besoin du maillage, seulement du champ.
+Aucune prédiction n'étant jamais mélangée à une autre, l'interférence destructive qui
+condamne les formulations par composition de la Sec.~\ref{sec:fusions} ne peut pas se
+produire.}
+\label{fig:method}
+\end{figure*}
+
+Le guidage n'a jamais besoin du maillage, seulement du champ : les marching
+cubes~\cite{marchingcubes} ne sont appliqués qu'une fois, à la fin, pour exporter le
+résultat. Point décisif : \emph{aucune prédiction n'est jamais mélangée à une autre}.
+L'interférence destructive qui condamne les formulations par composition de la
+Sec.~\ref{sec:fusions} ne peut pas se produire.
+
+\textbf{Mise en \oe{}uvre.} $\mathcal{T}$ est écrite à la main, en indexation et
+produits, plutôt qu'avec \texttt{grid\_sample} : le noyau rétropropagé 3D de cette
+dernière n'est pas implémenté sur Apple Metal, et le repli CPU imposerait un
+aller-retour de 67\,Mo par pas. Coût mesuré : $3{,}44$\,s par pas guidé, $8{,}98$\,Go
+de crête mémoire, $\approx 55$\,s par échantillon à 20 pas sur un M2 Max.
+
+\textbf{Terme optionnel de normale.} Un contact venant d'une main porte une normale
+sortante approchée $n_i$. Nous n'imposons que la \emph{direction} du gradient du champ,
+$\mathcal{L}_{\text{nrm}} = \frac{1}{N}\sum_i [\,1 - s\, g_i\!\cdot n_i / \lVert g_i
+\rVert\,]$ avec $g_i = \nabla_{\!p}\Phi|_{p_i}$ par différences finies centrées et
+$s = +1$ la convention de signe mesurée (extérieur positif : médiane intérieure
+$-0{,}0998$, extérieure $+0{,}0999$, une TSDF tronquée à $\pm 0{,}10$). Les deux
+pertes ont des unités incommensurables ; $\lambda$ est calibré une fois au premier pas
+guidé pour que leurs normes de gradient coïncident, puis figé. La
+Sec.~\ref{sec:res-anchor} montre que le terme n'aide pas de façon mesurable.
+
+\textbf{Placer les ancres.} Sans vérité terrain, le repère est estimé par deux
+critères : la \emph{cohérence de silhouette} (projeter la prédiction et la comparer à
+l'image de conditionnement, que le modèle a déjà reçue) et le \emph{résidu des ancres}
+(parmi les poses que la silhouette laisse plausibles, garder celle dont les ancres
+s'approchent le plus de la surface de la première passe). Aucun ne suffit seul.
+Recaler les ancres sur une première passe non guidée par ICP les place, comparées à
+leur position exacte, à $0{,}66$--$0{,}76$ en médiane dans un repère où l'objet occupe
+$[-1,1]$ --- \emph{sur} la surface mais \emph{au mauvais endroit}, l'ICP superposant
+sans respecter les correspondances et les quasi-symétries lui en laissant la latitude.
+Silhouette plus résidu ramènent l'écart médian de $0{,}755$ à $0{,}501$, et à
+$0{,}111$ sur les objets sans ambiguïté de silhouette.
+
+\subsection{Ancrage par conditionnement à travers une variante multi-vues}
+\label{sec:conditioning}
+
+La variante à quatre vues de profondeur ancre le repère mais exige quatre entrées, et
+quatre vues réelles ne laissent aucune marge. Fournir une vue réelle et trois images
+vides échoue : mesuré sur quatre objets et deux graines, $43{,}07$ \Fs{} contre
+$95{,}40$ avec quatre vues réelles, et moins bien que le modèle mono-vue dédié sur la
+moitié des objets. \textbf{Les vues vides ne sont pas neutres ; elles retirent de
+l'information.}
+
+Une carte de profondeur, en revanche, est de la géométrie 3D dans le repère de la
+caméra. On peut la rétroprojeter en points, puis la revoir depuis n'importe quelle
+autre position du rig canonique. La vue synthétique est géométriquement juste là où
+elle a de la donnée et vide ailleurs --- bien plus proche de la distribution
+d'entraînement qu'une image noire. Nous fournissons donc au modèle \emph{une vue de
+profondeur réelle et trois reprojetées depuis elle}, avec leurs quatre indices de
+caméra. Le placement des ancres devient alors une transformation fixe, calibrée une
+fois : mesuré sur quatre objets et deux graines, la rotation de sortie reste entre
+$118^\circ$ et $122^\circ$ autour d'un axe constant.
+
+L'intention de conception était que la reprojection \emph{n'ajoute aucune
+information} --- la même observation unique réencodée --- pour que la reconstruction
+reste au niveau mono-vue pendant que les indices de caméra ancrent la pose. La
+Sec.~\ref{sec:res-conditioning} montre que cette intention n'a pas été atteinte : le
+modèle traite les vues reprojetées comme des preuves, et ce qu'il fait de leurs trous
+dépend de l'objet.
+
+\subsection{Modèle d'ancres}
+\label{sec:contactmodel}
+
+Échantillonner les ancres uniformément sur le maillage de référence est l'objection la
+plus lourde contre tout résultat d'ancrage, puisque les points viennent alors de la
+réponse. Nous le remplaçons par un modèle de palpation imposant trois contraintes
+physiques : accessibilité en ligne droite (rayons lancés depuis l'extérieur, premiers
+impacts seuls), restriction à la face occultée par la caméra, et rejet des points où
+une pulpe de 6\,mm ne passerait pas. Les ancres sont regroupées en \emph{sites} plutôt
+que dispersées --- une main touche par plaques. Ce seul changement divise par deux le
+plafond de la méthode ($+14{,}37 \rightarrow +6{,}77$ sur cinq objets) : une partie du
+gain annoncé par les campagnes intermédiaires venait de la couverture uniforme, pas des
+mesures.
+
+Pour la Sec.~\ref{sec:res-hand}, nous utilisons en outre un \emph{simulateur de
+préhension} qui place une ancre par zone de doigt (pouce, index, majeur, annulaire,
+auriculaire, paume) à des angles anatomiques fixes autour de l'axe principal de
+l'objet, bien plus proche d'une main réelle que des sites bien répartis : écart minimal
+entre ancres de $0{,}058$ à $0{,}344$ contre $0{,}446$ à $1{,}281$ pour nos sites.
+
+% ===========================================================================
+\section{Protocole expérimental}
+% ===========================================================================
+
+\textbf{Protocole.} 42 objets YCB~\cite{ycb}, 3 graines de bruit chacun, soit 126
+comparaisons \emph{appariées} : chaque génération ancrée est comparée à une génération
+non ancrée de \emph{même graine}. Rien n'étant entraîné, tous les objets sont des
+objets de test.
+
+\textbf{Métrique.} F-Score@2\% après recalage sur la référence, distance de Chamfer
+symétrique, connectivité, et rappel séparé selon la visibilité caméra.
+
+\textbf{Significativité.} Nous utilisons un \textbf{test des signes}, pas un test de
+Student : la distribution des gains est fortement asymétrique (médiane $+1{,}69$ pour
+une moyenne de $+3{,}21$) et quelques objets dominent. Une moyenne y est fragile, un
+compte de signes ne l'est pas. Tous les $p$ sont \textbf{bilatéraux}, et les ex aequo
+exacts sont écartés plutôt que comptés comme des échecs --- un cas sur 126 est noté à
+l'identique avec et sans ancrage, d'où un résultat principal rapporté sur 125.
+
+\textbf{Discipline de l'oracle.} Là où c'est indiqué, les ancres sont placées à l'aide
+du maillage de référence, tirées avec le modèle de palpation de la Sec.~\ref{sec:contactmodel}. Ces chiffres sont rapportés \emph{uniquement} comme bornes
+supérieures, jamais comme performance de système, et toujours avec mention explicite
+de ce qui a été donné gratuitement.
+
+% ===========================================================================
+\section{Résultats}
+% ===========================================================================
+
+\subsection{Ancrage par contrainte : ce que le repère coûte}
+\label{sec:res-constraint}
+
+\begin{table}[t]
+\centering
+\caption{Ancrage par contrainte avec des contacts tactiles, 42 objets YCB.}
+\label{tab:main}
+\begin{tabular}{lr}
+\toprule
+Témoin non ancré (image seule) & 53,1 \Fs \\
+\midrule
+Gain moyen, repère estimé & \gd{$+3{,}21$} \\
+Médiane / écart-type & $+1{,}69$ / $7{,}52$ \\
+Cas positifs & \gd{83 / 125} \\
+Test des signes (bilatéral) & \gd{$p = 3{,}1\times10^{-4}$} \\
+Objets à gain moyen positif & 35 / 42 \\
+\midrule
+Gain moyen, repère donné (oracle) & $+8{,}05$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Le tableau~\ref{tab:main} donne le résultat par contrainte. L'effet est modeste au
+regard de sa dispersion : c'est la significativité du \emph{signe} qui est solide, pas
+la précision de l'amplitude. Sur cinq objets, une campagne antérieure mesurait
+$+1{,}79$ à $p = 0{,}035$ ; à 42 objets l'effet est plus fort et deux ordres de
+grandeur plus significatif --- ce n'était donc pas un objet qui portait tout.
+
+Comparer le gain réalisé à l'oracle isole le coût de l'estimation du repère :
+$+3{,}21$ contre $+8{,}05$ sur 42 objets, et $+1{,}79$ contre $+6{,}77$ sous le modèle
+de palpation sur cinq. \textbf{L'estimation du repère absorbe 60 à 74~\% de ce que
+l'ancrage par contrainte peut rendre} --- un ordre de grandeur au-dessus de tout autre
+facteur mesuré dans ce papier.
+
+\subsection{Ancrage par conditionnement : le repère fixé, à un prix}
+\label{sec:res-conditioning}
+
+\begin{table}[t]
+\centering
+\caption{Les deux voies d'ancrage, et leur combinaison. Mêmes 42 objets, mêmes 126
+cas appariés par graine, même métrique.}
+\label{tab:routes}
+\begin{tabular}{lrr}
+\toprule
+& \Fs & repère \\
+\midrule
+Image seule (ossature mono-vue) & 53,1 & tiré avec le bruit \\
+\quad $+$ contacts en contrainte & 56,3 & estimé, $\pm$ large \\
+Profondeur reprojetée en 4 vues & \gd{64,3} & fixé, $\pm 2^\circ$ \\
+\quad $+$ contacts en contrainte & 64,7 & fixé \\
+\midrule
+Choix oracle de la voie, par cas & 72,2 & --- \\
+Quatre vues de profondeur \emph{réelles} (4 objets) & 98,6 & fixé \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Le tableau~\ref{tab:routes} place les deux voies côte à côte. Reprojeter une seule
+carte de profondeur dans les quatre vues canoniques gagne $+11{,}22$ sur l'ossature
+mono-vue en moyenne appariée --- plus de trois fois ce que les contacts rendent --- et
+fixe le repère. Mais le gain est \textbf{bimodal} : 87 cas sur 126 s'améliorent de
+$+26{,}1$ en moyenne, et 39 cas perdent $-22{,}1$. Les pertes sont catastrophiques sur
+les solides de révolution --- balle de baseball $95{,}5 \rightarrow 29{,}2$, ballon
+$93{,}9 \rightarrow 35{,}5$, conserve $91{,}0 \rightarrow 46{,}8$ --- où une seule vue
+de profondeur laisse trois vues canoniques presque vides, que le modèle remplit depuis
+son a priori, mal. L'intention de la Sec.~\ref{sec:conditioning}, que la reprojection
+n'ajoute aucune information, n'a pas été atteinte : le modèle traite les vues
+reprojetées comme des preuves.
+
+\textbf{Aucun sélecteur sans vérité terrain testé n'atteint l'oracle.} Un choix par
+cas entre les deux voies atteindrait $72{,}2$. Le sélecteur évident --- la part de
+pixels reprojetés qui portent une profondeur --- est \emph{anti}-corrélé au gain
+($r = -0{,}40$) : les objets compacts et ronds remplissent beaucoup de pixels et
+échouent, les objets plats en remplissent peu et réussissent. Le remplissage mesure la
+forme de l'objet, pas la qualité de la reprojection, et aucun seuil ne bat le choix
+systématique de la reprojection. La classification par symétrie, l'autre candidat, est
+déjà réfutée comme prédicteur en Sec.~\ref{sec:res-anchor}. Le $72{,}2$ existe mais
+est hors de portée sans connaître la réponse.
+
+\textbf{Empiler les contacts sur le repère ancré ajoute $+0{,}38$} (75/126 positifs,
+$p = 0{,}040$). Une fois le repère fixé et l'a priori fort, les contacts n'ont plus
+grand-chose à corriger. Les deux voies ne sont pas complémentaires non plus : la
+corrélation entre le gain de reprojection et le gain de contacts vaut $+0{,}056$, et
+sur les 39 cas où la reprojection échoue, les contacts récupèrent $+1{,}7$ contre une
+perte de $-22$. Elles échouent sur des objets différents par accident, pas par
+conception.
+
+\subsection{Ce qu'un jeu d'ancres exige}
+\label{sec:res-anchor}
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{\input{fig_results}}
+\caption{\textbf{Sept manipulations contrôlées du jeu d'ancres.}
+\textbf{(a)} Chaque estimation est une différence appariée entre deux conditions
+ancrées, sur le même objet et la même graine de bruit ($n=15$). Les barres d'erreur
+valent une erreur type --- $0{,}26$ lorsque les deux conditions viennent de la même
+campagne et partagent donc le repère oracle, le bruit de placement s'annulant alors
+dans la différence, et $0{,}91$ lorsqu'elles viennent de campagnes distinctes, qui ne
+partagent aucune passe non ancrée. La couleur marque la significativité au test des
+signes bilatéral, dont les comptes figurent à droite ; nous nous appuyons sur lui
+plutôt que sur les erreurs types, car il ne demande aucune estimation de $\sigma$.
+Trois comparaisons seulement en sortent, et toutes trois portent sur \emph{où} sont les
+ancres et \emph{avec quelle justesse} elles sont placées --- jamais sur leur nombre, ni
+sur ce que la caméra en voit. \textbf{(b)} Le résultat de visibilité seul, sur les 45
+cas de la campagne de stratégies de préhension. L'ajustement par moindres carrés penche
+dans le mauvais sens, et les trois cas où la main ne touche \emph{rien} que la caméra
+ne voie déjà (en vert) comptent parmi les plus gros gains mesurés.}
+\label{fig:results}
+\end{figure*}
+
+La Fig.~\ref{fig:results}a balaie sept propriétés du jeu d'ancres sous ancrage par
+contrainte, sur cinq objets, placement oracle. Trois passent un test des signes
+bilatéral à $p = 0{,}035$, et elles partagent un thème.
+
+\textbf{L'étalement compte.} À budget constant de 128 ancres réparties sur $N$ sites,
+le gain vaut $-0{,}42$ à 4 sites, $+1{,}79$ à 8, $+2{,}03$ à 16 et $+1{,}55$ à 32 : un
+seuil entre 4 et 8, puis un plateau. Passer de 8 plaques à 4 coûte $-2{,}55$ (12/15
+négatifs).
+
+\textbf{La justesse du placement compte.} Un bruit gaussien de $3$\,mm en position et
+$15^\circ$ sur les normales, l'ordre de ce que la cinématique directe d'un doigt
+fournirait, coûte $-2{,}40$ (12/15 négatifs).
+
+\textbf{Le nombre ne compte pas.} De 32 à 512 ancres, le gain vaut $+0{,}23$,
+$+1{,}21$, $+0{,}07$ : plat sur une plage de $16\times$.
+
+\textbf{Les normales ne comptent pas.} Les ajouter donne $+0{,}93$, que le test des
+signes ne sépare pas de zéro ($10/15$, $p = 0{,}302$). La moyenne est portée par deux
+valeurs aberrantes : retirer la plus grande laisse $+0{,}43$, pour une médiane de
+$+0{,}26$.
+
+\textbf{La visibilité ne compte pas --- et c'est le résultat qui renverse la
+prémisse.} Avec le simulateur de préhension, trois stratégies placent les mêmes six
+ancres avec $83$~\%, $70$~\% et $37$~\% d'entre elles sur la face occultée. Leurs gains
+valent $+1{,}73$, $+1{,}37$ et $+2{,}55$ : la stratégie qui touche le \emph{moins} la
+face cachée gagne le \emph{plus}. Sur 45 cas, la corrélation entre part occultée et
+gain vaut $r = -0{,}145$, légèrement dans le mauvais sens (Fig.~\ref{fig:results}b).
+Le cas décisif est sans ambiguïté : sur la perceuse, la stratégie qui place
+\textbf{zéro} ancre sur la face occultée --- ne touchant que ce que la caméra voit déjà
+--- gagne $+5{,}68$ en moyenne. Les ancres éparses ne complètent pas ce que la vision
+manque. \textbf{Elles fixent position, échelle et orientation globales d'un a priori
+dont le repère est lâche, et pour cela le côté où elles se trouvent n'importe pas.}
+
+\subsection{Pourquoi les formulations de fusion échouent}
+\label{sec:fusions}
+
+Cinq formulations exigent que les mesures produisent une forme complète, ensuite
+mélangée à celle de l'image. L'échec le plus instructif est le mélange pondéré dans
+l'espace $\hat{z}_0$, qui s'effondre de $44{,}9$ à $13{,}9$ \Fs{} à poids égal :
+l'interpolation convexe entre deux modes distincts d'une distribution tombe dans une
+zone de faible densité --- le point médian entre deux formes plausibles n'est pas une
+forme plausible. Cela vaut pour tout mélange naïf de latents génératifs.
+
+\begin{table}[t]
+\centering
+\caption{Six contacts orientés, avec et sans a priori génératif.}
+\label{tab:poisson}
+\begin{tabular}{lr}
+\toprule
+Reconstruction de Poisson~\cite{poisson}, 6 contacts orientés & 19,41 \Fs \\
+Reconstruction de Poisson, 18 contacts (3 prises) & 20,10 \\
+\midrule
+A priori génératif, image seule, sans mesure & \gd{56,52} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Le tableau~\ref{tab:poisson} convertit la cause commune en une mesure, sans aucun
+modèle de diffusion. La reconstruction de Poisson consomme précisément des points
+orientés et rend une surface fermée dans 9 cas sur 10 --- ce n'est pas du gravier.
+Elle n'atteint pourtant que 34~\% de ce que l'image seule obtient déjà. Les mesures
+éparses sont un mauvais générateur et une bonne ancre ; la répartition des rôles n'est
+pas un choix de conception mais ce que les données imposent.
+
+Un module de fusion \emph{appris} (encodeur de géométrie et cross-attention greffés
+sur l'ossature gelée, 50 époques, 5 à 10\,M de paramètres entraînés) mesure $-4{,}20$
+sur cinq objets en tirages non appariés --- $0{,}9$ erreur type, indiscernable de
+zéro. La comparaison avec l'ancrage par contrainte ne porte pas vraiment sur les deux
+scores, tous deux médiocres. Elle porte sur le fait que la voie apprise
+\textbf{consomme les objets dont elle aurait besoin pour se juger} : 15 sur 20
+deviennent des données d'entraînement, il en reste cinq pour conclure, avec un bruit
+non apparié quatre fois plus grand. Dans un régime à peu de données et à métrique
+bruitée, une méthode sans entraînement achète de la \emph{puissance statistique}, et
+c'est ce qui a décidé cette étude.
+
+\subsection{Ce qui subsiste à la cardinalité matérielle}
+\label{sec:res-hand}
+
+\begin{table}[t]
+\centering
+\caption{Cardinalité réaliste, placement oracle. Différences appariées en bas.}
+\label{tab:hand}
+\begin{tabular}{lrr}
+\toprule
+Condition & Gain moyen & Test des signes \\
+\midrule
+8 ancres, position seule & $+3{,}25$ & $p=0{,}118$ \\
+8 ancres $+$ normales & $+4{,}18$ & $p=0{,}118$ \\
+8 ancres, placement bruité & $+1{,}78$ & $p=0{,}302$ \\
+4 ancres seulement & $+0{,}70$ & $p=1{,}000$ \\
+\midrule
+\multicolumn{3}{l}{\emph{Différences appariées (même objet, même graine)}}\\
+Normales vs sans & $+0{,}93$ & $p = 0{,}302$ \\
+Bruit de placement 3\,mm / $15^\circ$ & \lo{$-2{,}40$} & \gd{$p = 0{,}035$} \\
+4 zones au lieu de 8 & \lo{$-2{,}55$} & \gd{$p = 0{,}035$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Une main dextre à neuf zones n'en excite que trois à cinq dans une saisie réelle. À
+une ancre par zone (tableau~\ref{tab:hand}), une réduction d'un facteur $16$ par
+rapport à la campagne de référence coûte environ la moitié du plafond ($+6{,}77
+\rightarrow +3{,}25$), pas la totalité. Mais les deux effets qui atteignent la
+significativité sont précisément les deux propriétés d'une prise réelle : le bruit de
+placement et la réduction du nombre de zones. Une vraie main a les deux, et la
+condition conjointe --- ancres resserrées du simulateur, avec normales, bruit de
+placement \emph{et} repère estimé plutôt qu'oracle --- n'a pas été mesurée. Nous
+consignons la prédiction, avant mesure, qu'elle sera nulle.
+
+\subsection{Résultats méthodologiques}
+\label{sec:methodology}
+
+\textbf{La variance d'une exécution à l'autre, et d'où elle vient.} Relancer huit fois
+une commande identique --- même objet, même graine, mêmes ancres --- donne un
+écart-type de $0{,}49$ pour la passe non ancrée mais $2{,}29$ pour la passe ancrée, et
+$2{,}50$ pour la différence appariée. La lecture évidente, selon laquelle le guidage
+amplifierait le non-déterminisme du GPU, est \emph{fausse}, et nous la rapportons
+parce que nous l'avons d'abord tenue pour vraie. Ces répétitions ne sont pas
+identiques : le repère oracle est réestimé depuis la passe non ancrée de chaque
+répétition, si bien que les positions d'ancres bougent. Geler le repère sépare les
+causes :
+
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+& repère réestimé & repère gelé \\
+\midrule
+non ancré & 0,49 & 0,68 \\
+ancré & \textbf{2,29} & \textbf{0,70} \\
+différence appariée & 2,50 & 1,29 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Le placement figé, la passe ancrée est aussi reproductible que la passe non ancrée.
+\textbf{Le guidage n'amplifie rien : 91~\% de la variance d'un score ancré vient de
+la réestimation du placement des ancres.} Noter dix fois un même maillage enregistré
+en explique $0{,}32$ de plus, si bien que la génération elle-même contribue pour moins
+de $0{,}4$. Le problème de repère de la Sec.~\ref{sec:frame} apparaît donc deux fois
+: il consomme l'essentiel du gain moyen, et il domine la variance.
+
+Cela corrige le modèle d'erreur. Au sein d'une campagne, le repère oracle est calculé
+une fois par (objet, graine) et partagé par toutes les conditions : le bruit de
+placement s'annule dans les différences entre conditions ; entre campagnes il ne
+s'annule pas, aucune ne partageant sa passe non ancrée. Les deux familles portent des
+erreurs types de $\approx 0{,}26$ et $0{,}91$ sur 15 cas (Fig.~\ref{fig:results}a).
+Nous fondons néanmoins chaque affirmation sur le test des signes : le $\sigma$ à
+repère gelé repose sur huit répétitions d'un seul objet, et son intervalle de confiance
+à 95~\%, $[0{,}46 ; 1{,}42]$, est assez large pour que les effets les plus petits se
+déplacent entre $1{,}8$ et $5{,}5$ erreurs types selon l'endroit où se trouve la
+vérité.
+
+\textbf{Le F-Score est aveugle à la fragmentation.} Un semis d'éclats disjoints près
+de la vraie surface obtient un bon score. Sur la banane : une entrée à 128 points
+produit 43 composantes connexes dont la plus grosse porte 11~\% des faces, et
+$47{,}83$ \Fs, contre $34{,}48$ pour une prédiction image seule qui est une surface
+fermée unique. Nous rapportons le nombre de composantes et rejetons les métriques de
+distance en deçà d'un seuil sur la part de la plus grosse.
+
+\textbf{Le F-Score est aveugle aux symétries miroir.} Construire les candidats de
+recalage à partir de bases issues d'une SVD donne des repères orthogonaux mais pas
+nécessairement directs : \textbf{5 recalages sur 15 étaient des symétries}. Corrigé en
+forçant le déterminant à $+1$.
+
+\textbf{Un ICP mal initialisé échoue en silence.} Un ICP initialisé à l'identité
+laisse le recalage hors de son bassin de convergence, sous-notant un objet de jusqu'à
+$31$ points sans aucun signal d'erreur. Cela a modifié le classement entre méthodes
+comparées, et c'est l'origine du verdict initial à « $-8$ points » du module appris.
+
+% ===========================================================================
+\section{Limites}
+% ===========================================================================
+
+\textbf{Le contrôle manquant.} Le résultat de visibilité dit que des ancres sur la
+face visible valent autant que des ancres sur la face cachée. La face visible est
+exactement ce qu'une caméra de profondeur mesure. L'expérience qui en découle ---
+remplacer les contacts tactiles par une poignée de points de profondeur de la face
+visible, en contraintes dans l'Éq.~\eqref{eq:loss} --- n'a pas été menée. Si elle donne
+le même $+3$, la voie par contrainte n'a besoin d'aucun toucher ; si elle donne moins,
+les contacts portent quelque chose de spécifique. Les deux réponses se publient, et
+nous n'avons ni l'une ni l'autre.
+
+\textbf{Un défaut hérité.} Le moteur de rendu normalise chaque objet à une dimension
+maximale de $1{,}3$, alors que tous les calculs d'occultation le normalisent à $2{,}0$
+en laissant la caméra en place --- l'objet est $1{,}54\times$ trop gros par rapport à
+la caméra au moment où l'on décide de la visibilité. Sur le test par normale qui
+étiquette les six ancres d'une prise, cela ne change \emph{rien} : aucun des 45 cas ne
+bouge, et $r$ reste à $-0{,}145$. Sur la partition par suppression des points cachés,
+qui sert au rappel visible/occulté, cela déplace la part visible de $0{,}7$ à $5{,}7$
+points de pourcentage : ces colonnes portent cette erreur.
+
+Les images sont des rendus Blender synthétiques, sous une seule position de caméra et
+un seul éclairage. Les ancres sont échantillonnées sur le maillage de référence ---
+filtrées par accessibilité, occultation et encombrement du doigt, mais sans bruit et
+jamais fausses, sauf là où du bruit est ajouté délibérément. Aucun objet, capteur ou
+robot réel n'intervient, bien que le banc robotique qui a motivé ce travail existe et
+soit opérationnel. Une seule famille d'ossature et un seul poids de guidage ont été
+utilisés ; trois graines par objet restent peu ; les expériences secondaires portent
+sur cinq objets, dont l'un, la perceuse, porte une part importante de plusieurs
+totaux. Les formulations 3, 4 et 7 de la taxonomie de fusion sont \emph{sans objet}
+dans ce régime de données plutôt qu'invalidées --- le réentraînement à fusion précoce,
+seule voie que les auteurs de l'ossature valident, était hors budget.
+
+% ===========================================================================
+\section{Conclusion}
+% ===========================================================================
+
+Un a priori génératif 3D mono-vue peut être ancré par des mesures métriques éparses,
+et ce qui limite l'ancrage n'est pas les mesures. Leur nombre n'a pas d'effet sur une
+plage de $16\times$ ; leurs normales n'aident pas de façon mesurable ; qu'elles soient
+ou non sur la face que la caméra ne voit pas n'a pas d'effet non plus. Ce qui compte
+est de savoir si elles peuvent être placées dans le repère où le générateur produit
+--- et ce repère est tiré avec le bruit, si bien qu'aucun estimateur ne peut
+l'apprendre. L'estimer malgré tout coûte 60 à 74~\% du gain atteignable et explique
+91~\% de la variance d'une exécution à l'autre.
+
+Fixer le repère par conditionnement est possible, et vaut en moyenne trois fois plus
+que l'ancrage par contrainte, mais ce n'est pas gratuit : le modèle traite la preuve
+reprojetée comme réelle, et sur un tiers des objets le prix est catastrophique, sans
+sélecteur en vue qui ne connaisse déjà la réponse. Empiler des contraintes sur le
+repère fixé n'ajoute presque rien.
+
+Le mécanisme cohérent avec tout cela n'est pas que les mesures complètent ce que la
+vision manque. C'est que \emph{quelques ancres vraies régularisent la sortie d'un a
+priori génératif} --- position, échelle, orientation --- et que le repère propre de
+l'a priori est ce qui fait obstacle. C'est une revendication plus modeste que celle
+que ce travail visait, et plus générale : elle vaut pour le toucher, pour la
+profondeur, et pour tout signal métrique épars qu'un robot peut apporter.
+
+\balance
+\begin{thebibliography}{99}
+
+%% Vérifiée en ligne le 2026-09-01 : wala, ycb, smith2020, smith2021, suresh2022 et
+%% dust3r ont été confrontées à arXiv / à la notice de l'éditeur. Les autres entrées
+%% (dhariwal, cfg, zero123, poisson, marchingcubes, sdedit) sont des références
+%% standard reproduites de mémoire -- revérifier la pagination avant soumission.
+
+\bibitem{wala}
+A.~Sanghi, A.~Khani, P.~Reddy, A.~Rampini, D.~Cheung, K.~R.~Malekshan, K.~Madan et
+H.~Shayani, « Wavelet Latent Diffusion (WaLa): Billion-parameter 3D generative model
+with compact wavelet encodings », \emph{arXiv:2411.08017}, 2024.
+
+\bibitem{dhariwal}
+P.~Dhariwal et A.~Nichol, « Diffusion models beat GANs on image synthesis », dans
+\emph{Adv.\ Neural Inf.\ Process.\ Syst. (NeurIPS)}, 2021.
+
+\bibitem{cfg}
+J.~Ho et T.~Salimans, « Classifier-free diffusion guidance », dans \emph{NeurIPS
+Workshop on Deep Generative Models}, 2021.
+
+\bibitem{zero123}
+R.~Liu, R.~Wu, B.~Van~Hoorick, P.~Tokmakov, S.~Zakharov et C.~Vondrick,
+« Zero-1-to-3: Zero-shot one image to 3D object », dans \emph{Proc.\ IEEE/CVF Int.\
+Conf.\ Comput.\ Vis.\ (ICCV)}, 2023.
+
+\bibitem{dust3r}
+S.~Wang, V.~Leroy, Y.~Cabon, B.~Chidlovskii et J.~Revaud, « DUSt3R: Geometric 3D
+vision made easy », dans \emph{Proc.\ IEEE/CVF Conf.\ Comput.\ Vis.\ Pattern
+Recognit.\ (CVPR)}, 2024.
+
+\bibitem{ycb}
+B.~Calli, A.~Singh, A.~Walsman, S.~Srinivasa, P.~Abbeel et A.~M.~Dollar, « The YCB
+object and model set: Towards common benchmarks for manipulation research », dans
+\emph{Proc.\ Int.\ Conf.\ Adv.\ Robot.\ (ICAR)}, 2015, p.~510--517.
+
+\bibitem{smith2020}
+E.~J.~Smith, R.~Calandra, A.~Romero, G.~Gkioxari, D.~Meger, J.~Malik et M.~Drozdzal,
+« 3D shape reconstruction from vision and touch », dans \emph{Adv.\ Neural Inf.\
+Process.\ Syst. (NeurIPS)}, vol.~33, 2020.
+
+\bibitem{smith2021}
+E.~J.~Smith, D.~Meger, L.~Pineda, R.~Calandra, J.~Malik, A.~Romero et M.~Drozdzal,
+« Active 3D shape reconstruction from vision and touch », dans \emph{Adv.\ Neural
+Inf.\ Process.\ Syst. (NeurIPS)}, 2021.
+
+\bibitem{suresh2022}
+S.~Suresh, Z.~Si, J.~G.~Mangelson, W.~Yuan et M.~Kaess, « ShapeMap 3-D: Efficient
+shape mapping through dense touch and vision », dans \emph{Proc.\ IEEE Int.\ Conf.\
+Robot.\ Autom.\ (ICRA)}, 2022, p.~7073--7080.
+
+\bibitem{poisson}
+M.~Kazhdan et H.~Hoppe, « Screened Poisson surface reconstruction », \emph{ACM Trans.\
+Graph.}, vol.~32, n\textsuperscript{o}~3, 2013.
+
+\bibitem{marchingcubes}
+W.~E.~Lorensen et H.~E.~Cline, « Marching cubes: A high resolution 3D surface
+construction algorithm », dans \emph{Proc.\ SIGGRAPH}, 1987.
+
+\bibitem{sdedit}
+C.~Meng, Y.~He, Y.~Song, J.~Song, J.~Wu, J.-Y.~Zhu et S.~Ermon, « SDEdit: Guided image
+synthesis and editing with stochastic differential equations », dans \emph{Proc.\ Int.\
+Conf.\ Learn.\ Represent.\ (ICLR)}, 2022.
+
+\end{thebibliography}
+
+\end{document}

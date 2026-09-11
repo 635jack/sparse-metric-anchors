@@ -1,0 +1,570 @@
+<title>Apprendre ou contraindre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --ground:   #F2F4F6;
+    --surface:  #FFFFFF;
+    --sunken:   #E9ECEF;
+    --ink:      #171B21;
+    --ink-soft: #414A57;
+    --muted:    #6B7482;
+    --rule:     #D8DDE3;
+    --rule-soft:#E6EAEE;
+    --accent:   #2C5B79;
+    --accent-soft: #E2EBF1;
+    --pos:      #2A6B58;
+    --pos-soft: #E0EDE8;
+    --neg:      #96412F;
+    --neg-soft: #F2E3DE;
+    --shadow:   0 1px 2px rgba(23,27,33,.05), 0 8px 24px -16px rgba(23,27,33,.22);
+    --measure: 65ch;
+    --s2: .7rem; --s3: 1.1rem; --s4: 1.7rem;
+    --s5: 2.6rem; --s6: 4rem; --s7: 6rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:#101419; --surface:#181D24; --sunken:#1F252D;
+      --ink:#E6EAF0; --ink-soft:#B9C2CE; --muted:#8B94A2;
+      --rule:#2B323B; --rule-soft:#232A32;
+      --accent:#7FB2D3; --accent-soft:#1C2A35;
+      --pos:#6DBEA1; --pos-soft:#16281F;
+      --neg:#D98D77; --neg-soft:#2C1D18;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:#101419; --surface:#181D24; --sunken:#1F252D;
+    --ink:#E6EAF0; --ink-soft:#B9C2CE; --muted:#8B94A2;
+    --rule:#2B323B; --rule-soft:#232A32;
+    --accent:#7FB2D3; --accent-soft:#1C2A35;
+    --pos:#6DBEA1; --pos-soft:#16281F;
+    --neg:#D98D77; --neg-soft:#2C1D18;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16.5px; line-height: 1.62; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 var(--s4) var(--s7); }
+
+  header.top { padding: var(--s6) 0 var(--s5); border-bottom: 2px solid var(--ink); }
+  .kicker {
+    font-family: "IBM Plex Mono", monospace; font-size: .72rem; font-weight: 500;
+    letter-spacing: .13em; text-transform: uppercase; color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: var(--s3); margin-bottom: var(--s3);
+  }
+  h1 {
+    font-family: Spectral, Georgia, serif; font-weight: 600;
+    font-size: clamp(2.1rem, 5.4vw, 3.4rem); line-height: 1.05;
+    letter-spacing: -.02em; margin: 0 0 var(--s3); text-wrap: balance;
+  }
+  .lede {
+    font-family: Spectral, Georgia, serif; font-size: clamp(1.08rem, 2.1vw, 1.26rem);
+    line-height: 1.55; color: var(--ink-soft); max-width: 60ch; margin: 0;
+  }
+  .lede em { color: var(--ink); font-style: italic; }
+
+  .part { padding: var(--s6) 0 var(--s5); border-bottom: 1px solid var(--rule-soft); }
+  .part:last-of-type { border-bottom: 0; }
+  .partnum {
+    font-family: "IBM Plex Mono", monospace; font-size: .7rem; font-weight: 500;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--accent);
+    display: block; margin-bottom: var(--s2);
+  }
+  h2 {
+    font-family: Spectral, Georgia, serif; font-weight: 600;
+    font-size: clamp(1.5rem, 3.2vw, 2.05rem); line-height: 1.18;
+    letter-spacing: -.014em; margin: 0 0 var(--s4); text-wrap: balance;
+    max-width: 24ch;
+  }
+  h3 {
+    font-weight: 600; font-size: 1rem; margin: var(--s5) 0 var(--s2);
+  }
+  p, ul { max-width: var(--measure); }
+  p { margin: 0 0 var(--s3); }
+  ul { margin: 0 0 var(--s3); padding-left: 1.15rem; }
+  li { margin-bottom: var(--s2); }
+  li::marker { color: var(--muted); }
+  strong { font-weight: 600; }
+  code {
+    font-family: "IBM Plex Mono", monospace; font-size: .87em;
+    background: var(--sunken); padding: .1em .34em; border-radius: 3px;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+  .gain { color: var(--pos); font-weight: 600; }
+  .loss { color: var(--neg); font-weight: 600; }
+
+  /* duel apprendre / contraindre */
+  .duel {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: var(--s3); margin: var(--s4) 0; max-width: none;
+  }
+  .col {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 3px; padding: var(--s3) var(--s4); box-shadow: var(--shadow);
+  }
+  .col.win { border-top: 3px solid var(--pos); }
+  .col.lose { border-top: 3px solid var(--neg); }
+  .col h4 {
+    margin: 0 0 var(--s2); font-size: .78rem; font-family: "IBM Plex Mono", monospace;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 500;
+  }
+  .big {
+    font-family: Spectral, Georgia, serif; font-size: 2.1rem; line-height: 1;
+    font-variant-numeric: tabular-nums; margin-bottom: .15rem;
+  }
+  .col dl { margin: var(--s3) 0 0; font-size: .855rem; }
+  .col dt {
+    font-family: "IBM Plex Mono", monospace; font-size: .67rem;
+    letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
+    margin-top: var(--s2);
+  }
+  .col dd { margin: .1rem 0 0; }
+
+  /* cartes de cause de mort */
+  .morgue { display: grid; gap: var(--s2); margin: var(--s4) 0; max-width: none; }
+  .tech {
+    display: grid; grid-template-columns: 2.1rem 1fr; gap: var(--s3);
+    background: var(--surface); border: 1px solid var(--rule);
+    border-left: 3px solid var(--neg); border-radius: 3px;
+    padding: var(--s3) var(--s4);
+  }
+  .tech.alive { border-left-color: var(--pos); }
+  .tech.untested { border-left-color: var(--rule); border-left-style: dashed; }
+  .tech .id {
+    font-family: Spectral, Georgia, serif; font-size: 1.5rem; line-height: 1;
+    color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+  .tech .name { font-weight: 600; margin-bottom: .15rem; }
+  .tech .verdict {
+    font-family: "IBM Plex Mono", monospace; font-size: .73rem;
+    color: var(--muted); margin-bottom: var(--s2);
+  }
+  .tech p { margin: 0; font-size: .9rem; max-width: 62ch; }
+
+  /* chaîne de pose */
+  .chain { margin: var(--s4) 0; max-width: none; }
+  .step {
+    display: grid; grid-template-columns: 140px 1fr 118px;
+    gap: var(--s3); align-items: baseline;
+    padding: var(--s3) 0; border-bottom: 1px solid var(--rule-soft);
+  }
+  .step:last-child { border-bottom: 0; }
+  .step .when {
+    font-family: "IBM Plex Mono", monospace; font-size: .72rem;
+    color: var(--muted); letter-spacing: .04em;
+  }
+  .step .what { font-size: .92rem; max-width: 56ch; }
+  .step .what b { display: block; font-weight: 600; margin-bottom: .1rem; }
+  .step .cost {
+    font-family: "IBM Plex Mono", monospace; font-size: .84rem;
+    font-weight: 500; text-align: right; font-variant-numeric: tabular-nums;
+  }
+
+  .tablewrap { overflow-x: auto; margin: var(--s4) 0; }
+  table { width: 100%; border-collapse: collapse; font-size: .875rem; font-variant-numeric: tabular-nums; }
+  caption {
+    caption-side: top; text-align: left; font-family: "IBM Plex Mono", monospace;
+    font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); padding-bottom: var(--s2);
+  }
+  th, td { padding: .5rem .7rem; text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; white-space: normal; }
+  thead th {
+    font-family: "IBM Plex Mono", monospace; font-size: .68rem; font-weight: 500;
+    letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--ink); padding-bottom: .35rem;
+  }
+  tbody tr { border-bottom: 1px solid var(--rule-soft); }
+  tbody tr:last-child { border-bottom: 0; }
+  tbody th { font-weight: 500; }
+  tr.hi td, tr.hi th { background: var(--accent-soft); }
+
+  .callout {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent); border-radius: 3px;
+    padding: var(--s3) var(--s4); margin: var(--s4) 0;
+    box-shadow: var(--shadow); max-width: none;
+  }
+  .callout.warn { border-left-color: var(--neg); }
+  .callout h3 { margin: 0 0 var(--s2); }
+  .callout p:last-child { margin-bottom: 0; }
+  .verdict-line {
+    font-family: Spectral, Georgia, serif; font-size: 1.1rem; line-height: 1.5;
+  }
+
+  footer {
+    margin-top: var(--s6); padding-top: var(--s4); border-top: 2px solid var(--ink);
+    font-family: "IBM Plex Mono", monospace; font-size: .74rem;
+    color: var(--muted); line-height: 1.8;
+  }
+  footer .fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr)); gap: var(--s3) var(--s4); }
+  footer strong { color: var(--ink-soft); }
+
+  @media (max-width: 700px) {
+    .step { grid-template-columns: 1fr; gap: .2rem; }
+    .step .cost { text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">
+    <span>ISIR · WL-VisioTouch</span>
+    <span>Rapport complémentaire</span>
+    <span>1<sup>er</sup> septembre 2026</span>
+  </div>
+  <h1>Apprendre ou contraindre</h1>
+  <p class="lede">Ce que le stage a appris de ses échecs, et qui ne tient dans aucun des
+  rapports existants : pourquoi la voie apprise a perdu contre une règle sans paramètres,
+  pourquoi six modes de fusion sont morts de la même cause, et <em>pourquoi le repère de
+  sortie a coûté plus cher que tout le reste réuni</em>.</p>
+</header>
+
+<!-- ══════════════ I ══════════════ -->
+<section class="part">
+  <span class="partnum">Partie I — la question de fond</span>
+  <h2>Une règle sans paramètres bat un module entraîné</h2>
+
+  <p>Deux stratégies ont été menées jusqu'à la mesure. La première <strong>apprend</strong>
+  la fusion : un encodeur de géométrie et un module de cross-attention greffés sur le
+  générateur gelé, entraînés sur des paires (image, géométrie). La seconde
+  <strong>contraint</strong> : aucun paramètre, aucune donnée, une correction du gradient
+  à chaque pas de débruitage pour que la surface passe par les points mesurés.</p>
+
+  <div class="duel">
+    <div class="col lose">
+      <h4>Apprendre — technique n° 6</h4>
+      <div class="big loss">−4,20</div>
+      <div style="font-size:.85rem; color:var(--muted)">F@2 % contre le témoin</div>
+      <dl>
+        <dt>Résolution</dt>
+        <dd>5 objets, tirages non appariés, σ 10,5 → erreur type <span class="num">4,7</span>.
+        L'effet vaut <strong>0,9 erreur type</strong> : indiscernable de zéro.</dd>
+        <dt>Coût</dt>
+        <dd>50 époques, 5 à 10 M de paramètres entraînés, 1,2 Go de points de contrôle.</dd>
+        <dt>Coût caché, le vrai</dt>
+        <dd><strong>15 objets sur 20 deviennent inutilisables comme test.</strong> Il reste
+        5 objets pour conclure.</dd>
+      </dl>
+    </div>
+    <div class="col win">
+      <h4>Contraindre — technique n° 5</h4>
+      <div class="big gain">+3,21</div>
+      <div style="font-size:.85rem; color:var(--muted)">F@2 % contre le témoin</div>
+      <dl>
+        <dt>Résolution</dt>
+        <dd>42 objets, 126 cas <em>appariés</em>, plancher d'exécution σ 2,50 → erreur type
+        <span class="num">0,22</span>. L'effet vaut <strong>14 erreurs types</strong>.</dd>
+        <dt>Coût</dt>
+        <dd>Aucun entraînement. Zéro paramètre appris.</dd>
+        <dt>Bénéfice caché, le vrai</dt>
+        <dd><strong>Les 42 objets sont des objets de test.</strong> Le guidage ne
+        s'entraînant pas, la question de la généralisation ne se pose pas.</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <h3>L'asymétrie n'est pas dans les scores, elle est dans le pouvoir de conclure</h3>
+    <p class="verdict-line">Les deux chiffres bruts sont médiocres : <span class="num">−4,20</span>
+    et <span class="num">+3,21</span> sur des échelles de 0 à 100. Ce qui les sépare est
+    qu'<strong>un seul est mesurable</strong>. La voie apprise consomme les objets dont elle
+    aurait besoin pour se juger — 25 fois moins de cas, un bruit quatre fois plus grand faute
+    d'appariement, donc un pouvoir de détection écrasé. Elle n'a pas perdu la comparaison :
+    elle n'a jamais pu y entrer.</p>
+  </div>
+
+  <h3>Ce que ça dit du régime de données, et pas seulement de ce projet</h3>
+  <p>La leçon transposable n'est pas « l'apprentissage est inférieur ». Elle est que, à
+  budget de données petit et à métrique bruitée, <strong>une méthode sans entraînement
+  achète de la puissance statistique</strong>, et cette puissance est ce qui manquait. Le
+  papier de WaLa lui-même valide la fusion précoce réentraînée (technique n° 7) — mais avec
+  des données appariées en quantité, ce que le stage n'avait pas et ne pouvait pas produire.</p>
+
+  <p>La cause architecturale avancée à l'époque — chaque modalité de WaLa a son encodeur de
+  condition <em>entraîné conjointement</em> avec le DiT, donc en greffer un sur un DiT gelé
+  lui fournit des vecteurs hors distribution — reste plausible et cohérente avec le code du
+  papier. <strong>Mais elle n'est plus démontrée par la mesure censée la démontrer</strong>,
+  laquelle est retombée dans le bruit après correction du recalage. C'est une hypothèse, et
+  elle doit être présentée comme telle.</p>
+</section>
+
+<!-- ══════════════ II ══════════════ -->
+<section class="part">
+  <span class="partnum">Partie II — la morgue</span>
+  <h2>Six modes de fusion, une seule cause de décès</h2>
+
+  <p>Sept techniques ont été instrumentées. La lecture utile n'est pas la liste des échecs
+  mais leur <strong>facteur commun</strong> : cinq d'entre elles exigent que la géométrie
+  tactile soit un <em>générateur</em> — qu'elle produise une forme complète que l'on mélange
+  ensuite à celle de l'image.</p>
+
+  <div class="morgue">
+    <div class="tech">
+      <div class="id">1</div>
+      <div>
+        <div class="name">Fusion post-hoc des TSDF décodées</div>
+        <div class="verdict">67,6 → 28,4 % · source géométrique trop faible · chiffres à rejouer</div>
+        <p>Moyenner deux champs de distance décodés. Suppose deux formes complètes et
+        comparables ; il n'y en a qu'une.</p>
+      </div>
+    </div>
+    <div class="tech">
+      <div class="id">2</div>
+      <div>
+        <div class="name">Fusion pondérée dans l'espace ẑ₀</div>
+        <div class="verdict">44,9 → 13,9 % à poids égal · interférence destructive</div>
+        <p>L'interpolation convexe entre deux modes distincts d'une distribution tombe dans
+        une zone de <strong>faible densité</strong> : le point médian entre deux formes
+        plausibles n'est pas une forme plausible. C'est le résultat le plus instructif du lot,
+        et il vaut pour tout mélange naïf de latents génératifs.</p>
+      </div>
+    </div>
+    <div class="tech untested">
+      <div class="id">3</div>
+      <div>
+        <div class="name">Composition de scores / CFG étendu</div>
+        <div class="verdict">non testée · corrige la n° 2, mais sans objet</div>
+        <p>La formulation correcte du mélange — composer les scores, pas les prédictions.
+        Elle lève le défaut de la n° 2 et reste ouverte, mais elle exige toujours une source
+        géométrique génératrice.</p>
+      </div>
+    </div>
+    <div class="tech untested">
+      <div class="id">4</div>
+      <div>
+        <div class="name">Auto-récurrence</div>
+        <div class="verdict">non testée · dépend de 2 ou 3</div>
+        <p>Sans objet tant que la brique amont n'existe pas.</p>
+      </div>
+    </div>
+    <div class="tech alive">
+      <div class="id">5</div>
+      <div>
+        <div class="name">Guidage par contrainte de contact</div>
+        <div class="verdict">+3,21 · p = 4,6 × 10⁻⁴ · la seule qui tienne</div>
+        <p>N'exige de la géométrie qu'elle soit une <strong>contrainte</strong>. Aucune
+        prédiction n'est mélangée à une autre, donc l'interférence destructive de la n° 2 ne
+        peut pas se produire.</p>
+      </div>
+    </div>
+    <div class="tech">
+      <div class="id">6</div>
+      <div>
+        <div class="name">Module de fusion appris</div>
+        <div class="verdict">−4,20 · 0,9 erreur type · dans le bruit</div>
+        <p>Voir partie I. Ne gagne rien, et ne perd rien non plus — l'invalidation d'origine
+        à « −8 points » était pour l'essentiel un artefact de recalage.</p>
+      </div>
+    </div>
+    <div class="tech untested">
+      <div class="id">7</div>
+      <div>
+        <div class="name">Réentraînement à fusion précoce</div>
+        <div class="verdict">non testée · hors budget de données et de calcul</div>
+        <p>La seule voie que la littérature valide réellement. Demande des données appariées
+        en quantité.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <h3>Le chiffre qui transforme l'argument en mesure</h3>
+    <p>« La géométrie tactile ne peut pas générer » est resté longtemps un raisonnement sur
+    le régime de données. Il est désormais chiffré, par une méthode qui n'a rien à voir avec
+    la diffusion : six contacts orientés reconstruits par Poisson — qui consomme exactement
+    des points orientés, et produit une surface fermée dans 9 cas sur 10 — atteignent
+    <span class="num">19,81</span> de F@2 %, contre <span class="num">56,52</span> pour
+    l'image seule sur les mêmes objets.</p>
+    <p><strong>35 % du niveau que la vision atteint déjà.</strong> La répartition des rôles
+    n'est pas un choix de conception, c'est ce que les données imposent.</p>
+  </div>
+</section>
+
+<!-- ══════════════ III ══════════════ -->
+<section class="part">
+  <span class="partnum">Partie III — le verrou</span>
+  <h2>Le repère de sortie a coûté plus cher que tout le reste</h2>
+
+  <p>Les contacts vivent dans le repère du capteur ; le générateur produit dans un repère
+  canonique inconnu. Sans correspondance, la contrainte désigne des points arbitraires.
+  Voici la suite complète des tentatives, avec ce que chacune a coûté ou rapporté —
+  l'écart est mesuré au placement exact, dans un repère où l'objet occupe [−1, 1].</p>
+
+  <div class="chain">
+    <div class="step">
+      <div class="when">le point de départ</div>
+      <div class="what"><b>ICP point à point, initialisé à l'identité</b>
+      Hors du bassin de convergence : les deux repères diffèrent d'une rotation quelconque.
+      Échoue <em>en silence</em> — rien ne signale un minimum local.</div>
+      <div class="cost loss">jusqu'à −31,0</div>
+    </div>
+    <div class="step">
+      <div class="when">correctif n° 1</div>
+      <div class="what"><b>24 initialisations axe-sur-axe</b>
+      Essayer les 24 rotations qui envoient les axes sur les axes, garder le meilleur résidu.
+      13 cas sur 15 retiennent une initialisation non identitaire.</div>
+      <div class="cost gain">+5,0 en moyenne</div>
+    </div>
+    <div class="step">
+      <div class="when">piège découvert</div>
+      <div class="what"><b>Les bases de la SVD ne sont pas directes</b>
+      <strong>5 recalages sur 15 étaient des symétries miroir.</strong> Une reconstruction
+      inversée est un autre objet, et le F-Score ne le voit pas : il ne compare que des
+      distances. Corrigé en forçant le déterminant à +1.</div>
+      <div class="cost">0 miroir sur 15</div>
+    </div>
+    <div class="step">
+      <div class="when">la mesure du verrou</div>
+      <div class="what"><b>Recaler les contacts sur une première passe non guidée</b>
+      Les contacts tombent <em>sur</em> la surface mais <em>au mauvais endroit</em> : l'ICP
+      superpose le nuage sans respecter les correspondances, et les quasi-symétries lui en
+      laissent la latitude.</div>
+      <div class="cost loss">écart 0,66 – 0,76</div>
+    </div>
+    <div class="step">
+      <div class="when">critère sans vérité terrain</div>
+      <div class="what"><b>Cohérence de silhouette</b>
+      Projeter la prédiction et comparer à l'image de conditionnement, que le modèle a déjà
+      reçue. Contrairement à l'ICP, glisser le long de la surface <em>change</em> la
+      silhouette. Recherche sur SO(3) entier : la pose s'écarte jusqu'à 53° de la plus proche
+      permutation d'axes.</div>
+      <div class="cost">0,183 médian*</div>
+    </div>
+    <div class="step">
+      <div class="when">critère combiné</div>
+      <div class="what"><b>Silhouette pour restreindre, résidu des contacts pour trancher</b>
+      Ni l'un ni l'autre ne suffit seul.</div>
+      <div class="cost gain">0,755 → 0,501</div>
+    </div>
+    <div class="step">
+      <div class="when">et sur les objets nets</div>
+      <div class="what"><b>Objets sans ambiguïté de silhouette</b>
+      Là où la silhouette identifie l'orientation, le problème est presque résolu.</div>
+      <div class="cost gain">0,111</div>
+    </div>
+    <div class="step">
+      <div class="when">l'échappatoire</div>
+      <div class="what"><b>Apprendre la pose depuis l'image</b>
+      Un petit régresseur entraîné sur des paires (image, rotation observée) — la voie la
+      moins coûteuse imaginable.</div>
+      <div class="cost loss">impossible</div>
+    </div>
+  </div>
+  <p style="font-size:.8rem; color:var(--muted); max-width:var(--measure)">* médiane sur les
+  objets sans symétrie de révolution, contre 0,689 pour le recalage ICP en deux passes.</p>
+
+  <div class="callout warn">
+    <h3>Pourquoi le régresseur de pose ne peut pas exister</h3>
+    <p>Il suppose que la pose de sortie soit une <em>fonction de l'image</em>. Testé sur les
+    42 objets en comparant les rotations obtenues pour trois graines de bruit sur la même
+    image : l'écart médian entre graines vaut <span class="num">140,5°</span> sur les objets
+    asymétriques et <span class="num">129,8°</span> sur les symétriques —
+    <strong>1 objet sur 16 est stable</strong> chez les premiers, aucun sur 26 chez les
+    seconds. Corrélation asymétrie / stabilité : <span class="num">−0,073</span>.</p>
+    <p class="verdict-line"><strong>La pose n'est pas une grandeur stable du système : elle
+    est rééchantillonnée avec le bruit.</strong> Aucun régresseur ne peut l'apprendre, non
+    faute du bon estimateur, mais parce que la cible n'existe pas. C'est le résultat négatif
+    le plus fort du stage, et il n'était pas prévisible sans la mesure.</p>
+  </div>
+
+  <h3>Ce que le verrou a coûté, en une ligne</h3>
+  <div class="tablewrap">
+    <table>
+      <caption>Écart entre le réalisé et le plafond, à placement des contacts près</caption>
+      <thead>
+        <tr><th>Campagne</th><th>Pose estimée</th><th>Pose oracle</th><th>Facteur</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>42 objets, 126 cas</th><td class="num">+3,21</td><td class="num">+8,05</td><td class="num">2,5 ×</td></tr>
+        <tr class="hi"><th>5 objets, modèle de palpation</th><td class="num">+1,79</td><td class="num">+6,77</td><td class="num">3,8 ×</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Autrement dit : <strong>l'estimation de pose consomme entre 60 et 74 % de ce que la
+  technique peut rendre.</strong> Aucun autre facteur mesuré dans ce projet n'approche cet
+  ordre de grandeur — ni la densité des contacts, ni les normales, ni la visibilité.</p>
+
+  <h3>Et la seule sortie architecturale ferme aussi</h3>
+  <p>Les modèles multi-vues de WaLa déclarent <code>use_camera_index = True</code> et ancrent
+  la pose pour de bon : rotation reproductible à <span class="num">0,8°</span> près, la même
+  pour tous les objets bien contraints. Le repère devient une constante calibrable une fois,
+  et tout l'appareillage d'estimation devient inutile.</p>
+  <p>Mais quatre vues résolvent aussi la reconstruction — jusqu'à
+  <span class="num">99,9 %</span> de F@2 % sans aucun toucher. Le montage qui semblait
+  concilier les deux (une vue réelle, trois vues de profondeur reprojetées : pose ancrée à
+  ±2°, qualité redescendue à 71,9) a été mené jusqu'à la campagne complète le 13 août au
+  soir. <strong>Verdict : <span class="num">+0,38</span> de gain sur 42 objets, contre
+  <span class="num">+3,21</span> en mono-vue.</strong> La reprojection rend la pose et
+  reprend la marge. <em>Ce résultat ne figure dans aucun rapport et contredit l'encadré
+  conclusif du rapport de guidage.</em></p>
+</section>
+
+<!-- ══════════════ IV ══════════════ -->
+<section class="part">
+  <span class="partnum">Partie IV — ce qu'il faut retenir</span>
+  <h2>Trois leçons qui survivent au projet</h2>
+
+  <ul>
+    <li><strong>Le pouvoir de conclure est une ressource, au même titre que le calcul.</strong>
+    Une méthode qui n'a pas besoin d'entraînement rend tous ses objets disponibles pour le
+    test, et l'appariement divise le bruit par quatre. C'est ce qui a décidé la comparaison
+    de la partie I, pas la qualité intrinsèque des deux approches.</li>
+
+    <li><strong>Une modalité pauvre est une mauvaise génératrice et une bonne contrainte.</strong>
+    Le régime épars, partiel et ponctuel du tactile est un handicap pour cinq techniques sur
+    sept, et un atout pour une seule. Le choix de formulation compte plus que le choix
+    d'architecture.</li>
+
+    <li><strong>Un recalage d'évaluation est un résultat, pas de la plomberie.</strong>
+    Trois conclusions du projet ont été renversées par des défauts de recalage — un ICP mal
+    initialisé (jusqu'à 31 points), des bases indirectes produisant des miroirs (5 cas sur
+    15), une métrique aveugle à la fragmentation (43 composantes notées meilleures qu'une
+    surface). Aucun n'émettait le moindre signal d'erreur.</li>
+  </ul>
+
+  <div class="callout">
+    <h3>Ce que ce rapport ne prétend pas</h3>
+    <p>Les images sont des rendus synthétiques, les contacts sont échantillonnés sur les
+    maillages de référence, aucun capteur ni robot réel n'intervient. Les techniques 3, 4 et 7
+    ne sont pas testées : elles sont <em>sans objet</em> dans ce régime de données, ce qui
+    n'est pas la même chose qu'invalidées. Et les chiffres marqués « oracle » sont des bornes
+    supérieures obtenues en donnant gratuitement une information qu'aucun système n'a.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="fgrid">
+    <div>
+      <strong>Sources</strong><br>
+      <code>full42_combined.json</code><br>
+      <code>dm4_resultats.json</code><br>
+      <code>palpation_*.json</code> · <code>sites_*.json</code><br>
+      <code>notes/etat-des-pistes-fusion.md</code>
+    </div>
+    <div>
+      <strong>Complète et ne répète pas</strong><br>
+      <code>paper/rapport_guidage.tex</code><br>
+      <code>paper/resultats.md</code><br>
+      <code>notes/synthese-regime-dh116.html</code>
+    </div>
+    <div>
+      <strong>Réserves permanentes</strong><br>
+      Images synthétiques Blender<br>
+      Contacts simulés, aucun capteur réel<br>
+      Oracle = borne supérieure<br>
+      Plancher d'exécution σ 2,50
+    </div>
+  </div>
+</footer>
+
+</div>

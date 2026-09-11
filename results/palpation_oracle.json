@@ -1,0 +1,357 @@
+{
+  "002_master_chef_can": {
+    "baseline_s0": {
+      "f2": 98.1749793735676,
+      "f1": 53.05143341815097,
+      "chamfer": 0.0287064884564146,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 99.11806543385491,
+      "recall_occlude": 98.9745566692367
+    },
+    "palpation_128_s0": {
+      "f2": 99.26997481615795,
+      "f1": 65.9265053844987,
+      "chamfer": 0.02540663205851592,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 99.26031294452346,
+      "recall_occlude": 99.63762528912876,
+      "register_rmse": 0.9297870053440823,
+      "sdf_start": 0.09964387118816376,
+      "sdf_end": 0.007200991734862328
+    },
+    "baseline_s1": {
+      "f2": 77.06440018166482,
+      "f1": 37.27375989268947,
+      "chamfer": 0.04172361016718012,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 83.75533428165008,
+      "recall_occlude": 75.21973785659213
+    },
+    "palpation_128_s1": {
+      "f2": 87.07992191537004,
+      "f1": 57.43327239488117,
+      "chamfer": 0.031360012876939215,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 90.7823613086771,
+      "recall_occlude": 85.94448727833462,
+      "register_rmse": 0.9333841391600491,
+      "sdf_start": 0.09562817960977554,
+      "sdf_end": 0.008236504159867764
+    },
+    "baseline_s2": {
+      "f2": 94.58343289105038,
+      "f1": 64.2679835070795,
+      "chamfer": 0.02730783113095797,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 99.84352773826458,
+      "recall_occlude": 92.80647648419429
+    },
+    "palpation_128_s2": {
+      "f2": 99.59987851405621,
+      "f1": 69.83484536082473,
+      "chamfer": 0.024092298483157304,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 100.0,
+      "recall_occlude": 99.69159599074789,
+      "register_rmse": 0.911694707398823,
+      "sdf_start": 0.09273199737071991,
+      "sdf_end": 0.0127546526491642
+    }
+  },
+  "006_mustard_bottle": {
+    "baseline_s0": {
+      "f2": 27.792053956834533,
+      "f1": 12.15489921842863,
+      "chamfer": 0.09934529610968196,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 25.346457712731514,
+      "recall_occlude": 29.774411597035588
+    },
+    "palpation_128_s0": {
+      "f2": 37.37475852842809,
+      "f1": 15.283428197579326,
+      "chamfer": 0.07713812510256256,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 39.46380002590338,
+      "recall_occlude": 35.638081276976955,
+      "register_rmse": 0.8041038224059829,
+      "sdf_start": 0.07851056754589081,
+      "sdf_end": 0.04227501526474953
+    },
+    "baseline_s1": {
+      "f2": 33.29781110781111,
+      "f1": 12.719718859820384,
+      "chamfer": 0.08540302678644801,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 35.202693951560676,
+      "recall_occlude": 40.5733365909276
+    },
+    "palpation_128_s1": {
+      "f2": 36.02292609351433,
+      "f1": 14.018016997167141,
+      "chamfer": 0.07961758836278647,
+      "num_components": 2,
+      "largest_component_ratio": 0.9980729438152554,
+      "is_surface": true,
+      "recall_visible": 44.579717653153736,
+      "recall_occlude": 41.518038928251485,
+      "register_rmse": 0.8421417867726604,
+      "sdf_start": 0.07349596917629242,
+      "sdf_end": 0.01621500588953495
+    },
+    "baseline_s2": {
+      "f2": 20.779099264705884,
+      "f1": 7.912795633717404,
+      "chamfer": 0.15372410715989127,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 28.32534645771273,
+      "recall_occlude": 10.636045280560307
+    },
+    "palpation_128_s2": {
+      "f2": 42.72046668214535,
+      "f1": 22.465383936451897,
+      "chamfer": 0.0797718540963206,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 28.76570392436213,
+      "recall_occlude": 46.24155061487092,
+      "register_rmse": 0.7480160589720997,
+      "sdf_start": 0.07825049757957458,
+      "sdf_end": 0.03299974650144577
+    }
+  },
+  "011_banana": {
+    "baseline_s0": {
+      "f2": 48.588377271107944,
+      "f1": 31.617988252569752,
+      "chamfer": 0.0892646267651926,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 66.14896642239965,
+      "recall_occlude": 8.989591968315372
+    },
+    "palpation_128_s0": {
+      "f2": 47.4292874183176,
+      "f1": 24.365416836112242,
+      "chamfer": 0.07903147891914271,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 74.46133654161655,
+      "recall_occlude": 16.358109975131253,
+      "register_rmse": 0.8600021520589598,
+      "sdf_start": 0.09996011853218079,
+      "sdf_end": 0.080066978931427
+    },
+    "baseline_s1": {
+      "f2": 37.63061337554412,
+      "f1": 21.575133132669603,
+      "chamfer": 0.10133568535884663,
+      "num_components": 3,
+      "largest_component_ratio": 0.9998882015353656,
+      "is_surface": true,
+      "recall_visible": 54.41321229355791,
+      "recall_occlude": 19.010776457584967
+    },
+    "palpation_128_s1": {
+      "f2": 41.04432221951812,
+      "f1": 23.32527453890184,
+      "chamfer": 0.09381118725018665,
+      "num_components": 6,
+      "largest_component_ratio": 0.9992025659655154,
+      "is_surface": true,
+      "recall_visible": 59.19282511210763,
+      "recall_occlude": 20.447637468914063,
+      "register_rmse": 0.8163096500561148,
+      "sdf_start": 0.09999468922615051,
+      "sdf_end": 0.028312325477600098
+    },
+    "baseline_s2": {
+      "f2": 48.16648293484212,
+      "f1": 29.44526127299365,
+      "chamfer": 0.08831988101878371,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 76.33161981844033,
+      "recall_occlude": 3.2237266279819474
+    },
+    "palpation_128_s2": {
+      "f2": 51.775695042095414,
+      "f1": 25.215893729243994,
+      "chamfer": 0.0779237811497153,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 79.87531444821174,
+      "recall_occlude": 10.905406650087501,
+      "register_rmse": 0.8900929628032876,
+      "sdf_start": 0.1000014990568161,
+      "sdf_end": 0.044597115367650986
+    }
+  },
+  "025_mug": {
+    "baseline_s0": {
+      "f2": 56.81521704814523,
+      "f1": 27.758832853025933,
+      "chamfer": 0.07601561336380258,
+      "num_components": 13,
+      "largest_component_ratio": 0.9953657400691703,
+      "is_surface": true,
+      "recall_visible": 54.903515728258,
+      "recall_occlude": 53.22192760683233
+    },
+    "palpation_128_s0": {
+      "f2": 59.88187562354506,
+      "f1": 29.503284189120485,
+      "chamfer": 0.0711285734720748,
+      "num_components": 15,
+      "largest_component_ratio": 0.9906283463774678,
+      "is_surface": true,
+      "recall_visible": 61.723499867829766,
+      "recall_occlude": 55.63297773940926,
+      "register_rmse": 0.8773198452785949,
+      "sdf_start": 0.060447365045547485,
+      "sdf_end": 0.030300190672278404
+    },
+    "baseline_s1": {
+      "f2": 32.169276977860356,
+      "f1": 13.482614138438882,
+      "chamfer": 0.14341411878424004,
+      "num_components": 11,
+      "largest_component_ratio": 0.9985576633048705,
+      "is_surface": true,
+      "recall_visible": 36.18821041501454,
+      "recall_occlude": 37.11537275698341
+    },
+    "palpation_128_s1": {
+      "f2": 33.25594501718213,
+      "f1": 13.405922651933702,
+      "chamfer": 0.14274589389156225,
+      "num_components": 3,
+      "largest_component_ratio": 0.999969328289541,
+      "is_surface": true,
+      "recall_visible": 41.92439862542955,
+      "recall_occlude": 38.44730838009497,
+      "register_rmse": 0.8402771245948478,
+      "sdf_start": 0.07428707927465439,
+      "sdf_end": 0.06149318069219589
+    },
+    "baseline_s2": {
+      "f2": 73.07188207997815,
+      "f1": 32.7778916945543,
+      "chamfer": 0.05748600722009041,
+      "num_components": 4,
+      "largest_component_ratio": 0.9996925580974771,
+      "is_surface": true,
+      "recall_visible": 81.52260111022997,
+      "recall_occlude": 77.49892088549053
+    },
+    "palpation_128_s2": {
+      "f2": 74.56354606141521,
+      "f1": 33.999109809663246,
+      "chamfer": 0.04969015653436931,
+      "num_components": 7,
+      "largest_component_ratio": 0.9915198790010792,
+      "is_surface": true,
+      "recall_visible": 89.00343642611683,
+      "recall_occlude": 79.09601035949929,
+      "register_rmse": 0.921217018667717,
+      "sdf_start": 0.06875850260257721,
+      "sdf_end": 0.036139607429504395
+    }
+  },
+  "035_power_drill": {
+    "baseline_s0": {
+      "f2": 65.4238282264843,
+      "f1": 33.99893823529412,
+      "chamfer": 0.049142562994231184,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 60.615199034981906,
+      "recall_occlude": 68.77618192698982
+    },
+    "palpation_128_s0": {
+      "f2": 77.07601037613489,
+      "f1": 42.09499465494714,
+      "chamfer": 0.042055742039027386,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 81.34800965018094,
+      "recall_occlude": 78.57570317175345,
+      "register_rmse": 0.87118226398568,
+      "sdf_start": 0.07843907177448273,
+      "sdf_end": 0.018882635980844498
+    },
+    "baseline_s1": {
+      "f2": 52.470879466412576,
+      "f1": 28.09489232959601,
+      "chamfer": 0.06667757472393226,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 59.062123039807005,
+      "recall_occlude": 52.34141232794733
+    },
+    "palpation_128_s1": {
+      "f2": 64.910090839107,
+      "f1": 32.09107337591526,
+      "chamfer": 0.056411141288302186,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 78.93546441495778,
+      "recall_occlude": 61.886594853381204,
+      "register_rmse": 0.8837015433652758,
+      "sdf_start": 0.05511750280857086,
+      "sdf_end": 0.015417040325701237
+    },
+    "baseline_s2": {
+      "f2": 63.870684931506844,
+      "f1": 28.328625374977943,
+      "chamfer": 0.049229007273359576,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 58.85102533172497,
+      "recall_occlude": 64.35517654099343
+    },
+    "palpation_128_s2": {
+      "f2": 79.41943216871262,
+      "f1": 36.045106796116514,
+      "chamfer": 0.03955788653831635,
+      "num_components": 1,
+      "largest_component_ratio": 1.0,
+      "is_surface": true,
+      "recall_visible": 83.4589867310012,
+      "recall_occlude": 80.07181328545781,
+      "register_rmse": 0.9173391111735127,
+      "sdf_start": 0.07997143268585205,
+      "sdf_end": 0.015179124660789967
+    }
+  }
+}

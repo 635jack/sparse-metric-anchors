@@ -1,0 +1,41 @@
+# Core
+torch
+torchvision
+pytorch-lightning
+numpy
+scipy
+einops
+timm
+omegaconf
+
+# 3D
+open3d
+trimesh
+pymcubes
+scikit-image
+pytorch-wavelets
+PyWavelets
+h5py
+
+# Sparse convolutions used by WaLa's encoder.
+#   Linux / CUDA 12 : spconv-cu120 (plus cumm-cu120 pccm ccimport ninja)
+#   Apple Silicon   : build spconv natively; see README "Environment"
+spconv>=2.3.6; sys_platform == 'darwin'
+spconv-cu120; sys_platform == 'linux'
+cumm-cu120; sys_platform == 'linux'
+pccm; sys_platform == 'linux'
+ccimport; sys_platform == 'linux'
+ninja; sys_platform == 'linux'
+
+# Image conditioning
+Pillow
+transformers
+open-clip-torch==2.24.0
+diffusers
+huggingface_hub
+ftfy
+regex
+fasteners
+setuptools==69.5.1
+
+# DINOv2 is fetched through torch.hub at first run.

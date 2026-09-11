@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Generated meshes and intermediate renders: they regenerate from the campaigns.
+out/
+paper/fig_method.png
+paper/fig_results.png
+paper/*_epub.tex
+paper/*.log
+paper/*.aux
+
+# The benchmark images and meshes live on Hugging Face, not here.
+data/training_ycb/
+
+# Never commit model weights or tokens.
+checkpoints*/
+*.ckpt
+*.safetensors
+hf-tok
+*.token
+.env
+
+.DS_Store

@@ -54,9 +54,9 @@ from their JSON if interrupted, and write results incrementally.
 
 | Paper | Script | Result file |
 |---|---|---|
-| Sec. III — output pose resampled with noise (130°) | `tools/pose_determinism.py` | `results/pose_determinism.json` |
+| Sec. III — output pose resampled with noise (~135°) | `tools/pose_determinism.py` | `results/pose_determinism.json` |
 | Table I — constraint anchoring, 42 objects, frame estimated | `tools/run_guidance_campaign.py --combined_frame` | `results/full42_combined.json` |
-| Table I — oracle ceiling (+8.05) | `tools/run_guidance_campaign.py --oracle_frame` | `results/full42_oracle.json` |
+| Table I — oracle ceiling (+7.82) | `tools/run_guidance_campaign.py --oracle_frame` | `results/full42_oracle.json` |
 | Table II — depth reprojection into 4 views | `tools/depth_rig.py`, `tools/guided_sampling_dm4.py`, `tools/score_dm4.py` | `results/dm4_resultats.json` |
 | Sec. IV-A — ICP / silhouette / combined placement | `tools/pose_from_silhouette.py`, `tools/pose_selection_study.py` | `results/pose_so3.json`, `pose_silhouette.json`, `pose_combined.json`, `pose_selection.json` |
 | Fig. 2a — 4 / 8 / 16 / 32 sites at 128 anchors | `tools/make_contacts.py --sites N` then the campaign | `results/sites_4.json`, `palpation_combined.json`, `sites_16.json`, `sites_32.json` |
@@ -79,12 +79,21 @@ checkout; its output for the five test objects is already in
 
 ## Environment
 
-Python 3.10–3.12, PyTorch with MPS or CUDA, and `requirements.txt`. The sparse
-convolutions need `spconv`: `pip install spconv-cu120` on Linux, or a native build on
-Apple Silicon (the modified `src/` has been run on an M2 Max with 32 GB; a guided
-sample takes about 55 s at 20 steps, 9 GB peak). Loading `WaLa-SV-1B` needs about
-13 GB of RAM and 18 GB of disk for the checkpoint, fetched from the Hugging Face hub on
-first use.
+Python 3.10–3.13, PyTorch with MPS or CUDA, and `requirements.txt`. The sparse
+convolutions need `spconv`, built for the CUDA version of your torch (`spconv-cu118`,
+`cu121`, `cu124` or `cu126`; avoid `spconv-cu120`, whose wheels stop at Python 3.11), or a
+native build on Apple Silicon. A guided sample takes about 55 s at 20 steps on an M2 Max.
+
+Three traps on Python 3.13, all handled by the first cell of the notebook:
+`open3d` has no PyPI wheel, so install Open3D's development build from the
+[`main-devel` release](https://github.com/isl-org/Open3D/releases/tag/main-devel);
+`pymcubes` has no wheel and builds from source; and `setuptools` 82 removed
+`pkg_resources`, which `pytorch_wavelets` imports — pin `setuptools<82`.
+
+The published `WaLa-SV-1B` checkpoint is 18 GB, of which 5.1 GB are weights; the rest is
+optimiser state and an EMA copy the inference path never reads. The stock loader reads
+it twice and peaks at about 13 GB of RAM; `tools/load_slim.py` memory-maps it and peaks
+at about 6 GB, with bit-identical weights (checked tensor by tensor, 1399 of 1399).
 
 Two hardware notes from the paper. `torch.nn.functional.grid_sample` has no 3D
 backward kernel on Metal, which is why the interpolation is written by hand. And

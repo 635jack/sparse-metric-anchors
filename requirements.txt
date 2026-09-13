@@ -7,9 +7,10 @@ scipy
 einops
 timm
 omegaconf
+boto3           # imported by src/model_utils.py as soon as the model code loads
 
 # 3D
-open3d
+open3d          # no PyPI wheel for Python 3.13: install Open3D's development build (see README)
 trimesh
 pymcubes
 scikit-image
@@ -17,15 +18,12 @@ pytorch-wavelets
 PyWavelets
 h5py
 
-# Sparse convolutions used by WaLa's encoder.
-#   Linux / CUDA 12 : spconv-cu120 (plus cumm-cu120 pccm ccimport ninja)
-#   Apple Silicon   : build spconv natively; see README "Environment"
+# Sparse convolutions used by WaLa's encoder. Pick the build matching torch.version.cuda:
+#   CUDA 11.8 -> spconv-cu118   12.1-12.3 -> spconv-cu121   12.4-12.5 -> spconv-cu124   12.6+ -> spconv-cu126
+#   All four ship wheels for Python 3.9 to 3.13. spconv-cu120 stops at 3.11 -- avoid it.
+#   Apple Silicon: build spconv natively; see README "Environment".
 spconv>=2.3.6; sys_platform == 'darwin'
-spconv-cu120; sys_platform == 'linux'
-cumm-cu120; sys_platform == 'linux'
-pccm; sys_platform == 'linux'
-ccimport; sys_platform == 'linux'
-ninja; sys_platform == 'linux'
+spconv-cu124; sys_platform == 'linux'
 
 # Image conditioning
 Pillow
@@ -36,6 +34,6 @@ huggingface_hub
 ftfy
 regex
 fasteners
-setuptools==69.5.1
+setuptools<82   # pytorch_wavelets imports pkg_resources, removed in setuptools 82.0.0
 
 # DINOv2 is fetched through torch.hub at first run.

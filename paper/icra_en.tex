@@ -64,9 +64,8 @@
 \newcommand{\rlblXlab}{paired change in F-Score@2\,\%}
 \newcommand{\rlblPanelA}{What an anchor set needs, and what it does not}
 \newcommand{\rlblPanelB}{Visibility does not predict the gain}
-\newcommand{\rlblXlabB}{fraction of anchors occluded}
+\newcommand{\rlblXlabB}{fraction of anchors hidden from the camera}
 \newcommand{\rlblYlabB}{gain, F@2\,\%}
-\newcommand{\rlblZero}{no anchor on\\the hidden face}
 
 \newcommand{\gd}[1]{\textbf{#1}}
 \newcommand{\lo}[1]{\textbf{#1}}
@@ -108,7 +107,7 @@ spatial spread and placement accuracy; count, surface normals and visibility do 
 matter, and anchors on the face the camera already sees work as well as anchors on the
 face it cannot. Five alternative fusion formulations that treat the measurements as a
 generator all fail from that single cause, which we quantify without any diffusion
-model: six oriented contacts reconstructed by Poisson reach $19.4$ \Fs{} against
+model: six oriented contacts reconstructed by Poisson reach $19.9$ \Fs{} against
 $56.5$ for the image alone.
 \end{abstract}
 
@@ -341,7 +340,9 @@ what it does with their holes depends on the object.
 Sampling anchors uniformly on the reference mesh is the heaviest objection against any
 anchoring result, since the points then come from the answer. We replace it with a
 palpation model imposing three physical constraints: straight-line reachability (rays
-cast from outside, first hits only), restriction to the camera-occluded face, and
+cast from outside, first hits only), restriction to the face hidden from the camera (a
+camera placed in the wrong frame, so that $61\%$ of these anchors are hidden from the
+one that rendered the image; see Limitations), and
 rejection of points where a 6\,mm fingertip would not fit. Anchors are grouped into
 \emph{sites} rather than scattered --- a hand touches in patches. This change alone
 halves the ceiling of the method ($+14.37 \rightarrow +6.77$ on five objects): part
@@ -363,7 +364,7 @@ $0.446$--$1.281$ for our sites.
 with the \emph{same seed}. Because nothing is trained, every object is a test object.
 
 \textbf{Metric.} F-Score@2\% after alignment to the reference, plus symmetric Chamfer
-distance, connectivity, and recall split by camera visibility.
+distance and connectivity.
 
 \textbf{Significance.} We use a \textbf{sign test}, not a $t$-test: the gain
 distribution is strongly skewed (median $+1.69$ for a mean of $+3.21$) and a few
@@ -482,9 +483,8 @@ on it rather than on the standard errors, because it needs no estimate of $\sigm
 Only three comparisons clear it, and all three concern \emph{where} the anchors are
 and \emph{how accurately} they are placed --- never how many there are, nor what the
 camera can see of them. \textbf{(b)} The visibility result on its own, over the 45
-cases of the grasp-strategy campaign. The least-squares fit slopes the wrong way, and
-the three cases in which the hand touches \emph{nothing} the camera cannot already see
-(green) are among the largest gains measured.}
+cases of the grasp-strategy campaign, with visibility decided from the camera that
+rendered the images. The least-squares fit is flat.}
 \label{fig:results}
 \end{figure*}
 
@@ -509,13 +509,13 @@ from zero ($10/15$, $p = 0.302$). The mean is carried by two outliers: dropping 
 largest leaves $+0.43$, against a median of $+0.26$.
 
 \textbf{Visibility does not --- and this is the result that overturns the premise.}
-Using the grasp simulator, three strategies place the same six anchors with $83\%$,
-$70\%$ and $37\%$ of them on the occluded face. Their gains are $+1.73$, $+1.37$ and
-$+2.55$: the strategy that touches the hidden face \emph{least} gains \emph{most}. Over
-45 cases the correlation between occluded fraction and gain is $r = -0.145$, slightly
-the wrong way (Fig.~\ref{fig:results}b). The decisive case is unambiguous: on the
-power drill, the strategy that places \textbf{zero} anchors on the occluded face ---
-touching only what the camera already sees --- gains $+5.68$ on average. Sparse
+Using the grasp simulator, three strategies place the same six anchors with $87\%$,
+$60\%$ and $30\%$ of them on the face hidden from the camera. Their gains are $+1.37$,
+$+1.73$ and $+2.55$: the strategy that touches the hidden face \emph{least} gains
+\emph{most}, although the sign test separates none of them ($11/15$, $p = 0.118$
+between the last two). Case by case, over 45 cases, the correlation between hidden
+fraction and gain is $r = -0.001$ (Fig.~\ref{fig:results}b): how many anchors the camera
+cannot see says nothing about the gain. Sparse
 anchors do not complete what vision misses. \textbf{They fix global position, scale
 and orientation of a prior whose frame is loose, and for that it does not matter which
 side they lie on.}
@@ -666,14 +666,23 @@ Eq.~\eqref{eq:loss} --- has not been run. If it gives the same $+3$, then the co
 route needs no touch at all; if it gives less, contacts carry something specific.
 Either answer is publishable, and we do not have it.
 
-\textbf{An inherited defect.} The renderer normalises each object to a maximum
-dimension of $1.3$, while every occlusion computation normalises it to $2.0$ with the
-camera left in place --- the object is $1.54\times$ too large relative to the camera
-when visibility is decided. On the normal-based test that labels the six grasp anchors
-this changes \emph{nothing}: not one of the 45 cases moves, and $r$ stays at $-0.145$.
-On the hidden-point-removal split used for the visible/occluded recall it shifts the
-visible fraction by $0.7$ to $5.7$ percentage points, so those columns carry that
-error.
+\textbf{A camera placed in the wrong frame.} Blender's OBJ importer turns each Y-up
+mesh into its Z-up world, $(x, y, z) \mapsto (x, -z, y)$, before the camera at
+$(2.2, -2.2, 1.8)$ renders it. Every occlusion computation placed that camera in the
+mesh's own frame instead, $68^\circ$ from where it rendered: projected from there, the
+reference silhouettes overlap the input images at $0.51$ on average over 42 objects,
+against $0.95$ with the turn applied, and the visible/hidden label differs on $26\%$ of
+the surface. We found it late. The hidden fractions of the grasp strategies and
+Fig.~\ref{fig:results}b are recomputed from the rendering camera; from the misplaced
+one the correlation read $-0.145$, and three cases seemed to leave no anchor on the
+hidden face. Two artefacts keep the error. The palpation sites of
+Sec.~\ref{sec:contactmodel} were restricted to the face hidden from the misplaced
+camera: seen from the rendering camera, $61\%$ of their anchors are hidden ($15$ to
+$90\%$ depending on the object), a mostly hidden set rather than a hidden-face set.
+And the visible/occluded recall split, which no claim relies on, is unreliable. A
+smaller defect adds to it: the renderer normalises objects to a maximum dimension of
+$1.3$ where the occlusion code uses $2.0$; with the camera corrected, it changes the
+label of $3$ of the $45$ grasp cases.
 
 Images are synthetic Blender renders under a single camera and lighting condition.
 Anchors are sampled on the reference mesh --- filtered for reachability, occlusion and

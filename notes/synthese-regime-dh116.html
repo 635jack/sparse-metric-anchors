@@ -674,6 +674,18 @@
         </table>
       </div>
 
+      <div class="callout">
+        <h3>Correction du 14 septembre 2026 : la caméra était dans le mauvais repère</h3>
+        <p>Les parts occultées de cette page viennent de la caméra (2,2 ; −2,2 ; 1,8) placée
+        dans le repère du maillage, sans la rotation (x, y, z) → (x, −z, y) de l'import OBJ de
+        Blender : 68° de la caméra qui a rendu les images. Recalculées depuis la bonne caméra
+        (<code>tools/visibility_render_camera.py</code>) : <code>front_back</code> 60 %,
+        <code>left_right</code> 87 %, <code>right_left</code> 30 % d'ancres cachées ;
+        <strong>r = −0,001</strong> au lieu de −0,145 ; aucun cas sans ancre cachée (la perceuse en
+        <code>right_left</code> en a 2 sur 6). « L'occultation ne prédit rien » tient ; le « cas
+        décisif » ci-dessous n'existe pas.</p>
+      </div>
+
       <div class="callout warn">
         <h3>La stratégie qui touche le moins la face cachée est celle qui gagne le plus</h3>
         <p class="verdict">Corrélation entre part occultée et gain, sur 45 cas :

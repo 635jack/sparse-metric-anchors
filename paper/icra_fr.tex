@@ -67,9 +67,8 @@
 \newcommand{\rlblXlab}{écart apparié de F-Score@2\,\%}
 \newcommand{\rlblPanelA}{Ce qu'un jeu d'ancres exige, et ce qu'il n'exige pas}
 \newcommand{\rlblPanelB}{La visibilité ne prédit pas le gain}
-\newcommand{\rlblXlabB}{part d'ancres occultées}
+\newcommand{\rlblXlabB}{part d'ancres cachées de la caméra}
 \newcommand{\rlblYlabB}{gain, F@2\,\%}
-\newcommand{\rlblZero}{aucune ancre sur\\la face cachée}
 
 \newcommand{\gd}[1]{\textbf{#1}}
 \newcommand{\lo}[1]{\textbf{#1}}
@@ -115,7 +114,7 @@ sur la face que la caméra voit déjà valent autant que des ancres sur celle qu
 voit pas. Cinq formulations de fusion alternatives qui traitent les mesures comme un
 générateur échouent toutes pour cette seule cause, que nous quantifions sans aucun
 modèle de diffusion : six contacts orientés reconstruits par Poisson atteignent
-$19{,}4$ \Fs{} contre $56{,}5$ pour l'image seule.
+$19{,}9$ \Fs{} contre $56{,}5$ pour l'image seule.
 \end{abstract}
 
 % ===========================================================================
@@ -365,7 +364,9 @@ dépend de l'objet.
 plus lourde contre tout résultat d'ancrage, puisque les points viennent alors de la
 réponse. Nous le remplaçons par un modèle de palpation imposant trois contraintes
 physiques : accessibilité en ligne droite (rayons lancés depuis l'extérieur, premiers
-impacts seuls), restriction à la face occultée par la caméra, et rejet des points où
+impacts seuls), restriction à la face cachée de la caméra (une caméra placée dans le
+mauvais repère : $61$~\% de ces ancres seulement sont cachées de celle qui a rendu
+l'image, voir les limites), et rejet des points où
 une pulpe de 6\,mm ne passerait pas. Les ancres sont regroupées en \emph{sites} plutôt
 que dispersées --- une main touche par plaques. Ce seul changement divise par deux le
 plafond de la méthode ($+14{,}37 \rightarrow +6{,}77$ sur cinq objets) : une partie du
@@ -388,7 +389,7 @@ non ancrée de \emph{même graine}. Rien n'étant entraîné, tous les objets so
 objets de test.
 
 \textbf{Métrique.} F-Score@2\% après recalage sur la référence, distance de Chamfer
-symétrique, connectivité, et rappel séparé selon la visibilité caméra.
+symétrique et connectivité.
 
 \textbf{Significativité.} Nous utilisons un \textbf{test des signes}, pas un test de
 Student : la distribution des gains est fortement asymétrique (médiane $+1{,}69$ pour
@@ -511,9 +512,8 @@ plutôt que sur les erreurs types, car il ne demande aucune estimation de $\sigm
 Trois comparaisons seulement en sortent, et toutes trois portent sur \emph{où} sont les
 ancres et \emph{avec quelle justesse} elles sont placées --- jamais sur leur nombre, ni
 sur ce que la caméra en voit. \textbf{(b)} Le résultat de visibilité seul, sur les 45
-cas de la campagne de stratégies de préhension. L'ajustement par moindres carrés penche
-dans le mauvais sens, et les trois cas où la main ne touche \emph{rien} que la caméra
-ne voie déjà (en vert) comptent parmi les plus gros gains mesurés.}
+cas de la campagne de stratégies de préhension, la visibilité étant décidée depuis la
+caméra qui a rendu les images. L'ajustement par moindres carrés est plat.}
 \label{fig:results}
 \end{figure*}
 
@@ -540,13 +540,13 @@ $+0{,}26$.
 
 \textbf{La visibilité ne compte pas --- et c'est le résultat qui renverse la
 prémisse.} Avec le simulateur de préhension, trois stratégies placent les mêmes six
-ancres avec $83$~\%, $70$~\% et $37$~\% d'entre elles sur la face occultée. Leurs gains
-valent $+1{,}73$, $+1{,}37$ et $+2{,}55$ : la stratégie qui touche le \emph{moins} la
-face cachée gagne le \emph{plus}. Sur 45 cas, la corrélation entre part occultée et
-gain vaut $r = -0{,}145$, légèrement dans le mauvais sens (Fig.~\ref{fig:results}b).
-Le cas décisif est sans ambiguïté : sur la perceuse, la stratégie qui place
-\textbf{zéro} ancre sur la face occultée --- ne touchant que ce que la caméra voit déjà
---- gagne $+5{,}68$ en moyenne. Les ancres éparses ne complètent pas ce que la vision
+ancres avec $87$~\%, $60$~\% et $30$~\% d'entre elles sur la face cachée de la caméra.
+Leurs gains valent $+1{,}37$, $+1{,}73$ et $+2{,}55$ : la stratégie qui touche le
+\emph{moins} la face cachée gagne le \emph{plus}, sans que le test des signes en
+sépare aucune ($11/15$, $p = 0{,}118$ entre les deux dernières). Cas par cas, sur 45
+cas, la corrélation entre part cachée et gain vaut $r = -0{,}001$
+(Fig.~\ref{fig:results}b) : le nombre d'ancres que la caméra ne voit pas ne dit rien du
+gain. Les ancres éparses ne complètent pas ce que la vision
 manque. \textbf{Elles fixent position, échelle et orientation globales d'un a priori
 dont le repère est lâche, et pour cela le côté où elles se trouvent n'importe pas.}
 
@@ -705,14 +705,24 @@ le même $+3$, la voie par contrainte n'a besoin d'aucun toucher ; si elle donne
 les contacts portent quelque chose de spécifique. Les deux réponses se publient, et
 nous n'avons ni l'une ni l'autre.
 
-\textbf{Un défaut hérité.} Le moteur de rendu normalise chaque objet à une dimension
-maximale de $1{,}3$, alors que tous les calculs d'occultation le normalisent à $2{,}0$
-en laissant la caméra en place --- l'objet est $1{,}54\times$ trop gros par rapport à
-la caméra au moment où l'on décide de la visibilité. Sur le test par normale qui
-étiquette les six ancres d'une prise, cela ne change \emph{rien} : aucun des 45 cas ne
-bouge, et $r$ reste à $-0{,}145$. Sur la partition par suppression des points cachés,
-qui sert au rappel visible/occulté, cela déplace la part visible de $0{,}7$ à $5{,}7$
-points de pourcentage : ces colonnes portent cette erreur.
+\textbf{Une caméra placée dans le mauvais repère.} L'importateur OBJ de Blender tourne
+chaque maillage Y-up dans son monde Z-up, $(x, y, z) \mapsto (x, -z, y)$, avant que la
+caméra en $(2{,}2\,; -2{,}2\,; 1{,}8)$ ne le rende. Tous les calculs d'occultation ont
+placé cette caméra dans le repère propre du maillage, à $68^\circ$ de celle du rendu :
+projetées depuis là, les silhouettes de référence recouvrent les images d'entrée à
+$0{,}51$ en moyenne sur 42 objets, contre $0{,}95$ avec la rotation, et l'étiquette
+visible/cachée diffère sur $26$~\% de la surface. Nous l'avons trouvé tard. Les parts
+cachées des stratégies de préhension et la Fig.~\ref{fig:results}b sont recalculées
+depuis la caméra du rendu ; depuis la caméra mal placée, la corrélation valait
+$-0{,}145$ et trois cas semblaient ne laisser aucune ancre sur la face cachée. Deux
+artefacts gardent l'erreur. Les sites de palpation de la Sec.~\ref{sec:contactmodel}
+ont été restreints à la face cachée de la caméra mal placée : vus de la caméra du
+rendu, $61$~\% de leurs ancres sont cachées (de $15$ à $90$~\% selon l'objet), un jeu
+majoritairement caché plutôt qu'un jeu de face cachée. Et la partition du rappel
+visible/occulté, sur laquelle aucune affirmation ne repose, n'est pas fiable. Un défaut
+plus petit s'y ajoute : le rendu normalise les objets à une dimension maximale de
+$1{,}3$ quand le code d'occultation utilise $2{,}0$ ; caméra corrigée, il change
+l'étiquette de $3$ des $45$ cas de préhension.
 
 Les images sont des rendus Blender synthétiques, sous une seule position de caméra et
 un seul éclairage. Les ancres sont échantillonnées sur le maillage de référence ---

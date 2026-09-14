@@ -52,6 +52,13 @@ from grasp_dataset_gen.config import GraspConfig, CameraConfig, GraspStrategy
 # La caméra de WL-VisioTouch/tools/make_contacts.py, pas celle du simulateur : c'est
 # elle qui définit ce qui est occulté dans toute la campagne.
 CAMERA = (2.2, -2.2, 1.8)
+# ATTENTION : (2.2, -2.2, 1.8) est la position dans le monde Z-up de Blender, où l'import
+# OBJ a d'abord tourné le maillage Y-up : (x, y, z) -> (x, -z, y). Placée telle quelle dans
+# le repère du maillage, cette caméra est à 68° de celle qui a rendu les images.
+# Les trois stratégies restent trois prises distinctes ; leur part cachée est recalculée.
+# Les campagnes publiées ont tourné avec cette valeur ; elle est laissée pour qu'elles
+# restent reproductibles. tools/visibility_render_camera.py mesure l'écart et recalcule
+# la visibilité depuis la caméra du rendu.
 TEST_OBJECTS = ["002_master_chef_can", "006_mustard_bottle", "011_banana",
                 "025_mug", "035_power_drill"]
 STRATEGIES = ["front_back", "left_right", "right_left"]

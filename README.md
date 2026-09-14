@@ -62,7 +62,7 @@ from their JSON if interrupted, and write results incrementally.
 | Fig. 2a — 4 / 8 / 16 / 32 sites at 128 anchors | `tools/make_contacts.py --sites N` then the campaign | `results/sites_4.json`, `palpation_combined.json`, `sites_16.json`, `sites_32.json` |
 | Fig. 2a — 32 / 128 / 512 anchors | `tools/run_guidance_campaign.py --sets occluded:32 occluded:512` | `results/guidance_campaign.json` |
 | Fig. 2a, Table IV — hardware cardinality (8 / 4 anchors, normals, noise) | `tools/make_contacts_dh116.py`, `tools/run_dh116_regime.py` | `results/dh116_regime.json` |
-| Fig. 2b — grasp strategies and visibility | `tools/make_contacts_strategies.py`, `tools/run_strategies.py` | `results/strategies.json` |
+| Fig. 2b — grasp strategies and visibility | `tools/make_contacts_strategies.py`, `tools/run_strategies.py`, then `tools/visibility_render_camera.py` | `results/strategies.json`, `results/visibility_render_camera.json` |
 | Table III — Poisson witness without a generative model | `tools/poisson_temoin.py` | `results/poisson_temoin.json` |
 | Sec. VI-G — run-to-run variance, frame re-estimated / frozen | `tools/plancher_reproductibilite.py [--gel_pose]` | `results/plancher.json`, `plancher_gel.json` |
 | Sec. IV-A — sign convention of the decoded field | `tools/probe_field_sign.py` | printed |
@@ -107,10 +107,16 @@ this work, and are corrected in `tools/eval_fusion.py`: F-Score is blind to
 fragmentation (a scatter of shards scores well — connectivity is now reported), blind
 to mirror symmetry (SVD bases are not necessarily right-handed — the determinant is
 forced to +1), and an identity-initialised ICP fails silently (24 initialisations are
-tried). One inherited defect is **not** corrected and is declared in the paper's
-limitations: the renderer normalises objects to a maximum extent of 1.3 while every
-occlusion computation uses 2.0 with the camera left in place. It moves none of the 45
-visibility cases and shifts the hidden-point-removal split by 0.7 to 5.7 points.
+tried). One defect was found late and is declared in the paper's limitations: every
+occlusion computation placed the render camera, `(2.2, −2.2, 1.8)`, in the meshes' Y-up
+frame, without the `(x, y, z) → (x, −z, y)` turn that Blender's OBJ importer applied
+before rendering — 68° from where it rendered. `tools/visibility_render_camera.py`
+measures it (silhouette IoU against the input images: 0.95 with the turn, 0.51 without)
+and recomputes the visibility results from the right camera
+(`results/visibility_render_camera.json`): Fig. 2b's correlation is −0.001, not −0.145.
+The campaign scripts keep the misplaced camera so that the published files stay
+reproducible. The palpation sites they drew are 61 % hidden from the rendering camera,
+and the visible / occluded recall columns are unreliable.
 
 ## Licence
 

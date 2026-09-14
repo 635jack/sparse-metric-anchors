@@ -38,6 +38,13 @@ import open3d as o3d
 
 # Position de la caméra dans tools/render_blender.py (setup_scene)
 CAMERA = np.array([2.2, -2.2, 1.8], dtype=float)
+# ATTENTION : (2.2, -2.2, 1.8) est la position dans le monde Z-up de Blender, où l'import
+# OBJ a d'abord tourné le maillage Y-up : (x, y, z) -> (x, -z, y). Placée telle quelle dans
+# le repère du maillage, cette caméra est à 68° de celle qui a rendu les images.
+# Le rappel visible / occulté calculé ici n'est donc pas fiable.
+# Les campagnes publiées ont tourné avec cette valeur ; elle est laissée pour qu'elles
+# restent reproductibles. tools/visibility_render_camera.py mesure l'écart et recalcule
+# la visibilité depuis la caméra du rendu.
 N_SAMPLE = 20000
 
 

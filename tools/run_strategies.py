@@ -217,6 +217,9 @@ def main():
                     lambda_free=args.lambda_free)
                 s = score(gt_mesh, gt_pts, vis, thr, pred_obj)
                 # Part des contacts sur la face occultee : la variable de l'axe 1.
+                # ATTENTION : caméra placée dans le repère du maillage, à 68° de celle du rendu
+                # (voir tools/analyze_occlusion.py). part_occultee garde cette erreur ;
+                # tools/visibility_render_camera.py la recalcule.
                 cam = np.array([2.2, -2.2, 1.8])
                 tc = cam - pos0
                 tc /= np.linalg.norm(tc, axis=1, keepdims=True)

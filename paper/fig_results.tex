@@ -12,7 +12,9 @@
 %%       anchors are and how accurately they are placed, never how many there
 %%       are or what the camera can see of them.
 %%   (b) the visibility result on its own, because it is the one that runs
-%%       against the premise of the work.
+%%       against the premise of the work. Visibility is decided from the camera
+%%       that rendered the images (tools/visibility_render_camera.py); the
+%%       campaign's own fractions came from a camera placed in the wrong frame.
 %%
 %% All values are paired differences between two guided conditions on the same
 %% object and the same seed; n = 15 each.
@@ -42,7 +44,7 @@
   \draw[black!45] (axis cs:0,-0.8) -- (axis cs:0,6.8);
 
   % Barres d'erreur a une erreur type. ATTENTION, deux familles :
-  %   0,26 quand les deux conditions partagent le repere oracle (meme campagne :
+  %   0,58 quand les deux conditions partagent le repere oracle (meme campagne :
   %        le bruit de placement s'annule dans la difference appariee) ;
   %   0,91 quand elles viennent de campagnes distinctes, qui ne partagent aucune
   %        passe non guidee, et ou ce bruit ne s'annule pas.
@@ -86,9 +88,9 @@
   at={(fa.right of east)}, anchor=left of west, xshift=14mm,
   width=5.4cm, height=5.4cm,
   scale only axis,
-  xmin=-0.06, xmax=0.95,
+  xmin=0.08, xmax=1.08,
   ymin=-12, ymax=13,
-  xtick={0,0.25,0.5,0.75},
+  xtick={0.25,0.5,0.75,1},
   xticklabel style={font=\scriptsize},
   ytick={-10,-5,0,5,10},
   yticklabel style={font=\scriptsize},
@@ -99,30 +101,24 @@
   tick style={draw=black!45},
   clip=false,
 ]
-  \draw[black!30] (axis cs:-0.06,0) -- (axis cs:0.95,0);
+  \draw[black!30] (axis cs:0.08,0) -- (axis cs:1.08,0);
 
-  % 42 of the 45 cases
+  % the 45 cases, hidden fraction seen from the rendering camera
   \addplot[only marks, mark=o, mark size=1.25pt, draw=accent!75] coordinates {
-    (0.833,1.45) (0.833,0.68) (0.833,0.75) (0.833,0.97) (0.833,0.84) (0.833,0.57)
-    (0.333,1.64) (0.333,3.29) (0.333,1.01) (0.833,3.59) (0.833,-1.74) (0.833,3.67)
-    (0.500,3.31) (0.500,2.29) (0.500,0.09) (0.500,4.18) (0.500,3.11) (0.500,8.15)
-    (0.833,0.42) (0.833,-1.04) (0.833,0.67) (0.833,-10.43) (0.833,-1.25)
-    (0.833,-0.92) (0.167,-3.98) (0.167,-0.72) (0.167,-0.87) (0.833,5.66)
-    (0.833,-1.14) (0.833,-6.93) (0.667,7.02) (0.667,-5.67) (0.667,5.88)
-    (0.833,7.60) (0.833,0.13) (0.833,-2.27) (0.833,10.12) (0.833,0.01)
-    (0.833,9.76) (0.667,11.55) (0.667,0.94) (0.667,5.38)
+    (0.333,1.45) (0.333,0.68) (0.333,0.75) (0.833,0.97) (0.833,0.84) (0.833,0.57)
+    (0.167,1.64) (0.167,3.29) (0.167,1.01) (0.333,3.59) (0.333,-1.74) (0.333,3.67)
+    (0.833,3.31) (0.833,2.29) (0.833,0.09) (0.167,4.18) (0.167,3.11) (0.167,8.15)
+    (0.833,0.42) (0.833,-1.04) (0.833,0.67) (0.833,-10.43) (0.833,-1.25) (0.833,-0.92)
+    (0.167,-3.98) (0.167,-0.72) (0.167,-0.87) (0.667,5.66) (0.667,-1.14) (0.667,-6.93)
+    (0.833,7.02) (0.833,-5.67) (0.833,5.88) (0.667,7.60) (0.667,0.13) (0.667,-2.27)
+    (0.833,10.12) (0.833,0.01) (0.833,9.76) (1.000,11.55) (1.000,0.94) (1.000,5.38)
+    (0.333,9.16) (0.333,0.52) (0.333,7.36)
   };
-  % the three cases with NO contact on the occluded face
-  \addplot[only marks, mark=*, mark size=2.2pt, draw=good, fill=good] coordinates {
-    (0.000,9.16) (0.000,0.52) (0.000,7.36)
-  };
-  % least-squares fit: it slopes the wrong way
-  \addplot[draw=bad, very thick, domain=0:0.85, samples=2] {-2.413*x + 3.413};
+  % least-squares fit: flat
+  \addplot[draw=bad, very thick, domain=0.15:1.0, samples=2] {-0.013*x + 1.893};
 
-  \node[font=\scriptsize, text=bad, anchor=north east] at (axis cs:0.93,12.4)
-    {$r=-0.145$};
-  \node[font=\scriptsize, text=good, anchor=west, align=left]
-    at (axis cs:0.06,9.9) {\rlblZero};
+  \node[font=\scriptsize, text=bad, anchor=north west] at (axis cs:0.10,12.4)
+    {$r=-0.001$};
 \end{axis}
 
 \node[font=\scriptsize\bfseries, anchor=south west] at (fb.north west)

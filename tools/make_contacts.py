@@ -39,6 +39,13 @@ import torch
 # Position de la caméra dans tools/render_blender.py (setup_scene), reprise telle
 # quelle de tools/analyze_occlusion.py.
 CAMERA = np.array([2.2, -2.2, 1.8], dtype=float)
+# ATTENTION : (2.2, -2.2, 1.8) est la position dans le monde Z-up de Blender, où l'import
+# OBJ a d'abord tourné le maillage Y-up : (x, y, z) -> (x, -z, y). Placée telle quelle dans
+# le repère du maillage, cette caméra est à 68° de celle qui a rendu les images.
+# Les sites de palpation « côté caché » ne sont cachés de la vraie caméra qu'à 61 %.
+# Les campagnes publiées ont tourné avec cette valeur ; elle est laissée pour qu'elles
+# restent reproductibles. tools/visibility_render_camera.py mesure l'écart et recalcule
+# la visibilité depuis la caméra du rendu.
 POOL = 20000
 TEST_OBJECTS = ["002_master_chef_can", "006_mustard_bottle", "011_banana",
                 "025_mug", "035_power_drill"]

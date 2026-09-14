@@ -306,7 +306,18 @@ Sec.~\ref{sec:fusions} ne peut pas se produire.
 produits, plutôt qu'avec \texttt{grid\_sample} : le noyau rétropropagé 3D de cette
 dernière n'est pas implémenté sur Apple Metal, et le repli CPU imposerait un
 aller-retour de 67\,Mo par pas. Coût mesuré : $3{,}44$\,s par pas guidé, $8{,}98$\,Go
-de crête mémoire, $\approx 55$\,s par échantillon à 20 pas sur un M2 Max.
+de crête mémoire, $\approx 55$\,s par échantillon à 20 pas sur un M2 Max. Les poids de
+l'ossature sont utilisés tels quels, mais son code n'est pas celui publié. La faire
+tourner sur Metal a demandé de convertir des tenseurs float64 en float32 à plusieurs
+endroits et de compiler nativement la bibliothèque de convolutions éparses ; une
+rétropropagation à travers le modèle ne tient en mémoire qu'avec du \emph{gradient
+checkpointing} sur le transformeur de diffusion (crête $21 \rightarrow 6{,}5$\,Go) ; et
+trois pull requests du dépôt public y sont fusionnées. Le guidage, lui, enveloppe le
+débruiteur au moment de l'échantillonnage et ne modifie ni l'échantillonneur ni les
+poids. Les campagnes d'ancrage rapportées ici ont toutes tourné sur ce portage, et
+aucune n'a été recoupée avec l'implémentation CUDA de référence. Le code modifié est
+publié avec l'article, accompagné d'une notice qui liste ces changements comme l'exige
+la licence de l'ossature.
 
 \textbf{Terme optionnel de normale.} Un contact venant d'une main porte une normale
 sortante approchée $n_i$. Nous n'imposons que la \emph{direction} du gradient du champ,
@@ -658,7 +669,16 @@ trois objets de plus donne des écarts-types ancrés de $1{,}74$, $0{,}40$ et $2
 contre $2{,}53$, $0{,}49$ et $2{,}19$ non ancrés --- la passe ancrée n'est jamais plus
 bruitée que la passe non ancrée, sur aucun objet. \textbf{Le guidage n'amplifie rien.}
 Ce qui varie, c'est l'objet : le plancher va de $0{,}40$ à $2{,}56$ sur les quatre, un
-facteur six. Noter dix fois un même maillage enregistré en explique $0{,}32$. Le
+facteur six. Une bonne part vient de la notation,
+pas du générateur. Noter quatre fois chaque maillage enregistré, sans rien régénérer,
+donne des écarts-types de $0{,}33$ à $2{,}23$ selon l'objet. Regroupée sur les quatre,
+la notation seule a un écart-type de $1{,}45$ quand un score ancré en a $1{,}60$, et de
+$1{,}03$ quand un score non ancré en a $1{,}72$ : le recalage comme le F-Score
+échantillonnent des points au hasard, et l'ICP tombe parfois dans un autre bassin,
+jusqu'à $8$ points d'écart sur un même maillage. À repère gelé, la génération elle-même
+ajoute peu (au plus $0{,}66$, par différence). Nos erreurs types viennent de notations
+uniques et incluent donc ce bruit ; moyenner plusieurs notations par prédiction les
+réduirait. Le
 problème de repère de la Sec.~\ref{sec:frame} apparaît donc deux fois : il consomme
 l'essentiel du gain moyen, et il domine la variance.
 

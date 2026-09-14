@@ -287,7 +287,16 @@ composition-based formulations of Sec.~\ref{sec:fusions} cannot occur.
 rather than with \texttt{grid\_sample}: the 3D backward kernel of the latter is
 unimplemented on Apple Metal, and the CPU fallback would impose a 67\,MB round trip
 per step. Measured cost: $3.44$\,s per guided step, $8.98$\,GB peak memory, $\approx
-55$\,s per sample at 20 steps on an M2 Max --- no remote compute.
+55$\,s per sample at 20 steps on an M2 Max --- no remote compute. The backbone's
+weights are used unchanged, but its code is not the published one. Running it on Metal
+required casting float64 tensors to float32 at several points and building the
+sparse-convolution library natively; a backward pass through the model fits in memory
+only with gradient checkpointing on the diffusion transformer (peak $21 \rightarrow
+6.5$\,GB); and three pull requests of the public repository are merged in. The guidance
+itself wraps the denoiser at sampling time and changes neither the sampler nor the
+weights. The anchoring campaigns reported here all ran on that port, and none was
+cross-checked against the reference CUDA implementation. The modified code is released
+with the paper, with a notice listing these changes as the backbone's licence requires.
 
 \textbf{Optional surface-normal term.} A contact from a hand carries an approximate
 outward normal $n_i$. We impose only the \emph{direction} of the field gradient,
@@ -623,7 +632,15 @@ measurement on three more objects gives anchored standard deviations of $1.74$, 
 and $2.56$ against unanchored ones of $2.53$, $0.49$ and $2.19$ --- the anchored pass is
 never noisier than the unanchored one, on any object. \textbf{Guidance amplifies
 nothing.} What does vary is the object: the floor spans $0.40$ to $2.56$ across the
-four, a factor of six. Re-scoring one saved mesh ten times accounts for $0.32$ of it.
+four, a factor of six. Much of it is the scorer, not the generator.
+Re-scoring each saved mesh four times, without generating anything again, gives
+standard deviations of $0.33$ to $2.23$ depending on the object. Pooled over the four,
+the scorer alone has a standard deviation of $1.45$ where an anchored score has $1.60$,
+and $1.03$ where an unanchored one has $1.72$: both the alignment and the F-Score sample
+points at random, and the ICP occasionally settles in another basin, up to $8$ points
+apart on the same mesh. With the frame frozen, generation itself adds little ($0.66$
+at most, by difference). Our standard errors come from single scorings and therefore
+include this noise; averaging several scorings per prediction would shrink them.
 The frame problem of Sec.~\ref{sec:frame} therefore appears twice --- it consumes most
 of the mean gain, and it dominates the variance.
 

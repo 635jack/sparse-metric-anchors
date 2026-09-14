@@ -65,6 +65,7 @@ from their JSON if interrupted, and write results incrementally.
 | Fig. 2b — grasp strategies and visibility | `tools/make_contacts_strategies.py`, `tools/run_strategies.py`, then `tools/visibility_render_camera.py` | `results/strategies.json`, `results/visibility_render_camera.json` |
 | Table III — Poisson witness without a generative model | `tools/poisson_temoin.py` | `results/poisson_temoin.json` |
 | Sec. VI-G — run-to-run variance, frame re-estimated / frozen | `tools/plancher_reproductibilite.py [--gel_pose]` | `results/plancher.json`, `plancher_gel.json` |
+| Sec. VI-G — how much of the floor is the scorer | `tools/scoring_noise.py` | `results/scoring_noise.json` |
 | Sec. IV-A — sign convention of the decoded field | `tools/probe_field_sign.py` | printed |
 
 The scoring is shared by every campaign: `tools/eval_fusion.py` (alignment with 24

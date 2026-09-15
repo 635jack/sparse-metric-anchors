@@ -1,0 +1,251 @@
+{
+ "cases": 126,
+ "all_cases": {
+  "gain": {
+   "patches_hidden": {
+    "n_cases": 126,
+    "mean": 7.911826287108662,
+    "median": 5.673921343816154,
+    "se": 0.8107586604731647,
+    "positive": 111,
+    "nonzero": 125,
+    "p_two_sided": 6.572234867765595e-20
+   },
+   "patches_visible": {
+    "n_cases": 126,
+    "mean": 7.309374707344104,
+    "median": 4.721584266902873,
+    "se": 0.8852492107207426,
+    "positive": 107,
+    "nonzero": 125,
+    "p_two_sided": 1.3494093113112984e-16
+   },
+   "uniform_hidden": {
+    "n_cases": 126,
+    "mean": 18.240480197392625,
+    "median": 15.859616894174586,
+    "se": 1.3983068729210737,
+    "positive": 117,
+    "nonzero": 125,
+    "p_two_sided": 5.928488920821206e-26
+   },
+   "uniform_visible": {
+    "n_cases": 126,
+    "mean": 15.56914785307486,
+    "median": 13.655630734405179,
+    "se": 1.303307369456921,
+    "positive": 113,
+    "nonzero": 125,
+    "p_two_sided": 9.245962500366385e-22
+   }
+  },
+  "face_effect_within_patches": {
+   "n_cases": 126,
+   "mean": -0.6024515797645573,
+   "median": -0.11610044272890363,
+   "se": 0.5962518328494083,
+   "positive": 58,
+   "nonzero": 125,
+   "p_two_sided": 0.47442157344095126
+  },
+  "face_effect_within_uniform": {
+   "n_cases": 126,
+   "mean": -2.6713323443177646,
+   "median": -2.0650045346803765,
+   "se": 0.48279990292224434,
+   "positive": 35,
+   "nonzero": 125,
+   "p_two_sided": 9.23997771897882e-07
+  },
+  "spread_effect_within_hidden": {
+   "n_cases": 126,
+   "mean": 10.328653910283963,
+   "median": 9.628778227595825,
+   "se": 1.050769281252066,
+   "positive": 115,
+   "nonzero": 125,
+   "p_two_sided": 9.11799030781427e-24
+  },
+  "spread_effect_within_visible": {
+   "n_cases": 126,
+   "mean": 8.259773145730756,
+   "median": 8.064932945251059,
+   "se": 0.9374928596496725,
+   "positive": 104,
+   "nonzero": 124,
+   "p_two_sided": 6.9608437577917e-15
+  },
+  "interaction": {
+   "n_cases": 126,
+   "mean": -2.068880764553207,
+   "median": -1.6270060333699305,
+   "se": 0.7784522880310337,
+   "positive": 45,
+   "nonzero": 125,
+   "p_two_sided": 0.0022264883473202437
+  }
+ },
+ "out_of_grid": {
+  "palpation8_128": {
+   "035_power_drill_s0": 38,
+   "037_scissors_s0": 1,
+   "037_scissors_s1": 2,
+   "037_scissors_s2": 1,
+   "040_large_marker_s0": 2,
+   "043_phillips_screwdriver_s1": 1,
+   "043_phillips_screwdriver_s2": 2,
+   "051_large_clamp_s0": 1,
+   "051_large_clamp_s1": 12,
+   "052_extra_large_clamp_s1": 12,
+   "065-a_cups_s1": 3
+  },
+  "visible_128": {
+   "022_windex_bottle_s1": 1,
+   "024_bowl_s1": 2,
+   "028_skillet_lid_s1": 8,
+   "037_scissors_s0": 1,
+   "037_scissors_s1": 3,
+   "040_large_marker_s0": 4,
+   "043_phillips_screwdriver_s0": 1,
+   "043_phillips_screwdriver_s1": 1,
+   "043_phillips_screwdriver_s2": 2,
+   "051_large_clamp_s0": 1,
+   "051_large_clamp_s1": 9,
+   "052_extra_large_clamp_s1": 5
+  },
+  "occluded_128": {
+   "025_mug_s1": 1,
+   "028_skillet_lid_s1": 10,
+   "037_scissors_s0": 1,
+   "037_scissors_s1": 2,
+   "037_scissors_s2": 1,
+   "040_large_marker_s0": 1,
+   "043_phillips_screwdriver_s1": 1,
+   "043_phillips_screwdriver_s2": 2,
+   "051_large_clamp_s0": 1,
+   "051_large_clamp_s1": 2,
+   "052_extra_large_clamp_s1": 4,
+   "065-a_cups_s1": 2
+  },
+  "palpation8visible_128": {
+   "022_windex_bottle_s1": 1,
+   "037_scissors_s1": 2,
+   "037_scissors_s2": 1,
+   "040_large_marker_s0": 12,
+   "042_adjustable_wrench_s2": 2,
+   "043_phillips_screwdriver_s1": 2,
+   "043_phillips_screwdriver_s2": 3,
+   "051_large_clamp_s0": 5,
+   "051_large_clamp_s1": 12,
+   "052_extra_large_clamp_s1": 12
+  }
+ },
+ "without_out_of_grid": {
+  "cases_kept": 109,
+  "gain": {
+   "patches_hidden": {
+    "n_cases": 109,
+    "mean": 8.619058261011878,
+    "median": 6.817360347745648,
+    "se": 0.9079031412077999,
+    "positive": 96,
+    "nonzero": 108,
+    "p_two_sided": 1.9577499834912437e-17
+   },
+   "patches_visible": {
+    "n_cases": 109,
+    "mean": 7.969419046890427,
+    "median": 4.728837993780367,
+    "se": 0.9375279425076184,
+    "positive": 94,
+    "nonzero": 108,
+    "p_two_sided": 1.007692869242209e-15
+   },
+   "uniform_hidden": {
+    "n_cases": 109,
+    "mean": 19.06499199185176,
+    "median": 16.44985594203883,
+    "se": 1.5758371615040918,
+    "positive": 100,
+    "nonzero": 108,
+    "p_two_sided": 2.3538835344558564e-21
+   },
+   "uniform_visible": {
+    "n_cases": 109,
+    "mean": 16.34054569283312,
+    "median": 14.029875728277332,
+    "se": 1.4645818697482,
+    "positive": 96,
+    "nonzero": 108,
+    "p_two_sided": 1.9577499834912437e-17
+   }
+  },
+  "face_effect_within_patches": {
+   "n_cases": 109,
+   "mean": -0.6496392141214511,
+   "median": -0.24736500633014202,
+   "se": 0.5443795740261622,
+   "positive": 48,
+   "nonzero": 108,
+   "p_two_sided": 0.28979821540506145
+  },
+  "face_effect_within_uniform": {
+   "n_cases": 109,
+   "mean": -2.724446299018638,
+   "median": -2.1370483734917087,
+   "se": 0.5261129372782657,
+   "positive": 31,
+   "nonzero": 108,
+   "p_two_sided": 1.1153098221083039e-05
+  },
+  "spread_effect_within_hidden": {
+   "n_cases": 109,
+   "mean": 10.445933730839881,
+   "median": 9.828111733806864,
+   "se": 1.1864337250934884,
+   "positive": 98,
+   "nonzero": 108,
+   "p_two_sided": 2.651075204657039e-19
+  },
+  "spread_effect_within_visible": {
+   "n_cases": 109,
+   "mean": 8.371126645942695,
+   "median": 8.139456633165935,
+   "se": 0.9804768694735054,
+   "positive": 90,
+   "nonzero": 107,
+   "p_two_sided": 3.505779998119023e-13
+  },
+  "interaction": {
+   "n_cases": 109,
+   "mean": -2.074807084897187,
+   "median": -1.5240939378933547,
+   "se": 0.7421947106496819,
+   "positive": 40,
+   "nonzero": 108,
+   "p_two_sided": 0.009057983337532568
+  }
+ },
+ "anchor_sets": {
+  "patches_hidden": {
+   "hidden": 0.8485863095238095,
+   "nearest_neighbour": 0.017412509889541874,
+   "gyration_radius": 0.8186996287598121
+  },
+  "patches_visible": {
+   "hidden": 0.0625,
+   "nearest_neighbour": 0.017435888258121236,
+   "gyration_radius": 0.793629907711145
+  },
+  "uniform_hidden": {
+   "hidden": 0.6357886904761905,
+   "nearest_neighbour": 0.18437376775244577,
+   "gyration_radius": 0.7569800888499777
+  },
+  "uniform_visible": {
+   "hidden": 0.013020833333333334,
+   "nearest_neighbour": 0.14246270498881064,
+   "gyration_radius": 0.7207811723921195
+  }
+ }
+}

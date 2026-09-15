@@ -58,7 +58,7 @@
 \newcommand{\rlblNoise}{placement noise 3\,mm / $15^\circ$}
 \newcommand{\rlblPatchHi}{32 patches instead of 8}
 \newcommand{\rlblDens}{512 anchors instead of 32}
-\newcommand{\rlblVis}{anchors off the hidden face}
+\newcommand{\rlblVis}{anchors on the visible face instead}
 \newcommand{\rlblNorm}{surface normals added}
 \newcommand{\rlblPatchLo}{8 patches instead of 4}
 \newcommand{\rlblXlab}{paired change in F-Score@2\,\%}
@@ -87,25 +87,29 @@ The Output Frame Is the Bottleneck}
 \begin{abstract}
 A single-view 3D generative model supplies a strong shape prior; a robot supplies a
 few metric measurements --- a handful of contacts, one depth map. We ask what limits
-the injection of such sparse measurements into a pretrained prior, and find that it is
-neither their number, nor their content, nor which face of the object they touch. It
-is the \emph{output frame} of the generator. On a billion-parameter wavelet-latent
+the injection of such sparse measurements into a pretrained prior. Of the measurements
+themselves, only how widely they cover the surface matters much, and a grasp does not
+choose that; their number, their normals and which face of the object they touch matter
+little. What limits them once drawn is the \emph{output frame} of the generator. On a billion-parameter wavelet-latent
 diffusion model we show that the pose of the generated shape is not a function of the
 input image: it is resampled with the noise seed, shifting by about $135^\circ$ in median
 across seeds on 42 YCB objects. Two anchoring routes are then measured against this
 fact. Injecting contacts as a differentiable constraint during sampling, with no
-training, improves F-Score@2\% by $+3.21$ ($p = 3.1\times10^{-4}$, sign test), against
-$+7.82$ when the frame is given: frame estimation consumes 59--74\% of the achievable
-gain, and, once the frame is frozen, the anchored pass is as reproducible as the
+training, improves F-Score@2\% by $+3.2$ on 42 YCB objects (two independent campaigns:
+$+3.17$, $p = 9.5\times10^{-3}$, and $+3.21$, $p = 3.1\times10^{-4}$; sign test),
+against $+7.9$ when the frame is given: frame estimation consumes 60\% of the
+achievable gain, and, once the frame is frozen, the anchored pass is as reproducible as the
 unanchored one on every object tested. Anchoring the frame instead by
 reprojecting one depth map into the canonical views of a multi-view variant fixes the
 pose to $\pm 2^\circ$ and gains $+11.2$ on average --- but the effect is bimodal,
 losing $-22$ on solids of revolution, and no ground-truth-free selector we tested
 recovers the $72.2$ that a per-object oracle reaches. Stacking contacts on the anchored
-frame adds $+0.38$. Across seven controlled manipulations, what an anchor set needs is
-spatial spread and placement accuracy; count, surface normals and visibility do not
-matter, and anchors on the face the camera already sees work as well as anchors on the
-face it cannot. Five alternative fusion formulations that treat the measurements as a
+frame adds $+0.38$. Across seven controlled manipulations and a $2\times2$ design over
+126 paired cases, what an anchor set needs is spatial spread and placement accuracy: at
+equal count, uniform coverage gains twice what eight contact patches gain, while count,
+surface normals and which face they lie on matter little --- 128 depth-like points on
+the visible face gain $+15.6$ against $+7.9$ for eight tactile patches on the hidden
+face. Five alternative fusion formulations that treat the measurements as a
 generator all fail from that single cause, which we quantify without any diffusion
 model: six oriented contacts reconstructed by Poisson reach $19.9$ \Fs{} against
 $56.5$ for the image alone.
@@ -123,11 +127,12 @@ such measurements into a model that was never trained to receive them.
 This paper started as a study of touch --- whether a handful of tactile contacts can
 improve a single-image reconstruction --- and its central finding is that the question
 was framed on the wrong axis. Contacts do help, modestly and significantly. But what
-decides how much they help has nothing to do with the contacts: not their number over
-a $16\times$ range, not whether they carry a surface normal, not whether they lie on
-the face the camera cannot see. What decides is whether the measurements can be placed
-in the frame in which the generator produces its shape --- and that frame, we show, is
-not a function of the input. It is drawn with the noise.
+decides how much they help has little to do with what a hand can vary: not their number
+over a $16\times$ range, not whether they carry a surface normal, and only marginally
+whether they lie on the face the camera cannot see. Two things decide. How widely the
+anchors cover the surface, which a grasp does not control; and whether the measurements
+can be placed in the frame in which the generator produces its shape --- and that frame,
+we show, is not a function of the input. It is drawn with the noise.
 
 We therefore treat the problem as one of \emph{anchoring} a prior with sparse metric
 measurements, and use two sources of measurement as two probes of the same bottleneck.
@@ -146,15 +151,19 @@ Together they locate the problem.
   symmetric ones (Sec.~\ref{sec:frame}).
   \item A \textbf{training-free constraint-anchoring scheme}, differentiable
   end-to-end at sampling time, and a measurement of what the frame costs it:
-  $+3.21$ realised against $+7.82$ with the frame given
+  $+3.17$ realised against $+7.91$ with the frame given, on shared unanchored passes,
+  replicated by an independent campaign at $+3.21$ / $+7.82$
   (Secs.~\ref{sec:constraint}, \ref{sec:res-constraint}).
   \item A \textbf{conditioning-anchoring scheme} by depth reprojection, which fixes the
   frame and gains $+11.2$, together with the finding that the gain is bimodal and that
   the obvious ground-truth-free selector fails (Secs.~\ref{sec:conditioning},
   \ref{sec:res-conditioning}).
   \item A \textbf{characterisation of what an anchor set must be}: seven controlled
-  manipulations show that spread and placement accuracy matter, while count, normals
-  and visibility do not (Sec.~\ref{sec:res-anchor}).
+  manipulations and a $2\times2$ design over 126 paired cases show that spread and
+  placement accuracy matter --- spread alone doubles the gain --- while count, normals
+  and which face the anchors lie on matter little; the depth-camera control, points
+  covering the visible face, outgains tactile patches on the hidden face
+  (Sec.~\ref{sec:res-anchor}).
   \item A \textbf{decomposition of run-to-run variance}, showing that with the frame
   frozen the guidance adds no variance on any of four objects, so what dominates is
   frame re-estimation, and three evaluation pitfalls
@@ -349,14 +358,17 @@ what it does with their holes depends on the object.
 Sampling anchors uniformly on the reference mesh is the heaviest objection against any
 anchoring result, since the points then come from the answer. We replace it with a
 palpation model imposing three physical constraints: straight-line reachability (rays
-cast from outside, first hits only), restriction to the face hidden from the camera (a
-camera placed in the wrong frame, so that $61\%$ of these anchors are hidden from the
-one that rendered the image; see Limitations), and
+cast from outside, first hits only), restriction to the face hidden from the camera that
+rendered the image ($85\%$ of the anchors are hidden from it, $25$ to $98\%$ depending
+on the object; an earlier draw from a misplaced camera reached $61\%$, see
+Limitations), and
 rejection of points where a 6\,mm fingertip would not fit. Anchors are grouped into
 \emph{sites} rather than scattered --- a hand touches in patches. This change alone
 halves the ceiling of the method ($+14.37 \rightarrow +6.77$ on five objects): part
 of the gain reported by intermediate campaigns came from uniform coverage, not from
-the measurements.
+the measurements. For Sec.~\ref{sec:res-anchor} the same model is also run on the
+visible face, and uniform draws are taken on either face, so that spread and face can
+be crossed.
 
 For Sec.~\ref{sec:res-hand} we additionally use a \emph{grasp simulator} that places
 one anchor per finger zone (thumb, index, middle, ring, little, palm) at fixed
@@ -373,7 +385,9 @@ $0.446$--$1.281$ for our sites.
 with the \emph{same seed}. Because nothing is trained, every object is a test object.
 
 \textbf{Metric.} F-Score@2\% after alignment to the reference, plus symmetric Chamfer
-distance and connectivity.
+distance and connectivity. For the anchor-set design of Sec.~\ref{sec:res-anchor}, also
+the recall of the reference surface hidden from the rendering camera and of the surface
+it sees, split by hidden-point removal.
 
 \textbf{Significance.} We use a \textbf{sign test}, not a $t$-test: the gain
 distribution is strongly skewed (median $+1.69$ for a mean of $+3.21$) and a few
@@ -395,19 +409,25 @@ and always with an explicit statement of what was given for free.
 
 \begin{table}[t]
 \centering
-\caption{Constraint anchoring with tactile contacts, 42 YCB objects.}
+\caption{Constraint anchoring with tactile contacts, 42 YCB objects $\times$ 3 seeds.
+Both arms anchor the same unanchored passes. Last row: an earlier, independent
+campaign whose palpation sites were drawn from a misplaced camera (Limitations).}
 \label{tab:main}
 \begin{tabular}{lr}
 \toprule
-Unanchored baseline (image only) & 53.1 \Fs \\
+Unanchored baseline (image only) & 52.7 \Fs \\
 \midrule
-Mean gain, frame estimated & \gd{$+3.21$} \\
-Median / std.\ dev. & $+1.69$ / $7.52$ \\
-Positive cases & \gd{83 / 125} \\
-Sign test (two-sided) & \gd{$p = 3.1\times10^{-4}$} \\
-Objects with positive mean gain & 35 / 42 \\
+Mean gain, frame estimated & \gd{$+3.17$} \\
+Median / std.\ dev. & $+1.62$ / $8.18$ \\
+Positive cases & \gd{78 / 126} \\
+Sign test (two-sided) & \gd{$p = 9.5\times10^{-3}$} \\
+Objects with positive mean gain & 30 / 42 \\
 \midrule
-Mean gain, frame given (oracle) & $+7.82$ \\
+Mean gain, frame given (oracle) & $+7.91$ \\
+Positive cases & 111 / 125 \\
+Frame cost, paired (oracle $-$ estimated) & $+4.74 \pm 0.68$ \\
+\midrule
+Replication, earlier draw: estimated / oracle & $+3.21$ / $+7.82$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -415,14 +435,19 @@ Mean gain, frame given (oracle) & $+7.82$ \\
 Table~\ref{tab:main} gives the constraint result. The effect is modest relative to its
 spread --- it is the significance of the \emph{sign} that is solid, not the precision
 of the magnitude. On five objects an earlier campaign measured $+1.79$ at $p = 0.035$;
-at 42 objects the effect is stronger and two orders of magnitude more significant, so
-it was not a single object carrying everything.
+at 42 objects the effect is stronger, so it was not a single object carrying
+everything. It also replicates: an independent 42-object campaign, with its own
+unanchored passes and palpation sites drawn from a misplaced camera (Limitations),
+measured $+3.21$ ($83/125$, $p = 3.1\times10^{-4}$) and $+7.82$ with the frame given;
+case by case, the two campaigns differ by $-0.04 \pm 0.70$ and $+0.10 \pm 0.63$.
 
-Comparing the realised gain to the oracle isolates the cost of estimating the frame:
-$+3.21$ against $+7.82$ over 42 objects, and $+1.79$ against $+6.77$ under the
-palpation model on five. \textbf{Frame estimation absorbs 59--74\% of what constraint
-anchoring can deliver} --- an order of magnitude more than any other factor measured in
-this paper.
+Comparing the realised gain to the oracle isolates the cost of estimating the frame.
+Both arms anchor the same unanchored pass, so the comparison is paired on the anchored
+scores: $+4.74 \pm 0.68$ ($102/126$, $p = 10^{-12}$), i.e.\ the estimated frame realises
+$40\%$ of the ceiling; under the five-object sweep campaign, $+1.79$ against $+6.77$.
+\textbf{Frame estimation absorbs about 60\% of what constraint anchoring can deliver
+from a hand's contacts} --- more than any other factor a hand controls
+(Sec.~\ref{sec:res-anchor}).
 
 \subsection{Anchoring by conditioning: the frame fixed, at a price}
 \label{sec:res-conditioning}
@@ -482,7 +507,9 @@ different objects by accident, not by design.
 \resizebox{\textwidth}{!}{\input{fig_results}}
 \caption{\textbf{Seven controlled manipulations of the anchor set.}
 \textbf{(a)} Every estimate is a paired difference between two anchored conditions on
-the same object and the same noise seed ($n=15$). Error bars are one standard error
+the same object and the same noise seed ($n=15$; the visible-face row comes from the
+$2\times2$ design of Table~\ref{tab:factorial}, $n=126$, with its own standard error of
+$0.60$). Error bars are one standard error
 --- $0.58$ when both conditions come from the same campaign and therefore share the
 oracle frame, so that placement noise cancels in the difference (pooled over four
 objects), and at least $0.91$ when they come from different campaigns, which share no
@@ -491,15 +518,15 @@ significance under a two-sided sign test, whose counts are given at the right; w
 on it rather than on the standard errors, because it needs no estimate of $\sigma$.
 Only three comparisons clear it, and all three concern \emph{where} the anchors are
 and \emph{how accurately} they are placed --- never how many there are, nor what the
-camera can see of them. \textbf{(b)} The visibility result on its own, over the 45
-cases of the grasp-strategy campaign, with visibility decided from the camera that
+camera can see of them. \textbf{(b)} The grasp-simulator result on its own, over the
+45 cases of the grasp-strategy campaign, with visibility decided from the camera that
 rendered the images. The least-squares fit is flat.}
 \label{fig:results}
 \end{figure*}
 
 Fig.~\ref{fig:results}a sweeps seven properties of the anchor set under constraint
-anchoring, on five objects, oracle placement. Three clear a two-sided sign test at
-$p = 0.035$, and they share a theme.
+anchoring, on five objects (42 for the visible-face row), oracle placement. Three clear
+a two-sided sign test, and they share a theme.
 
 \textbf{Spread matters.} At constant budget of 128 anchors distributed over $N$
 sites, the gain is $-0.42$ at 4 sites, $+1.79$ at 8, $+2.03$ at 16 and $+1.55$ at 32:
@@ -517,17 +544,54 @@ flat over a $16\times$ range.
 from zero ($10/15$, $p = 0.302$). The mean is carried by two outliers: dropping the
 largest leaves $+0.43$, against a median of $+0.26$.
 
-\textbf{Visibility does not --- and this is the result that overturns the premise.}
-Using the grasp simulator, three strategies place the same six anchors with $87\%$,
-$60\%$ and $30\%$ of them on the face hidden from the camera. Their gains are $+1.37$,
-$+1.73$ and $+2.55$: the strategy that touches the hidden face \emph{least} gains
-\emph{most}, although the sign test separates none of them ($11/15$, $p = 0.118$
-between the last two). Case by case, over 45 cases, the correlation between hidden
-fraction and gain is $r = -0.001$ (Fig.~\ref{fig:results}b): how many anchors the camera
-cannot see says nothing about the gain. Sparse
-anchors do not complete what vision misses. \textbf{They fix global position, scale
-and orientation of a prior whose frame is loose, and for that it does not matter which
-side they lie on.}
+\begin{table}[t]
+\centering
+\caption{Anchor set, $2\times2$: gain in \Fs{} over one shared unanchored pass, oracle
+frame, 42 objects $\times$ 3 seeds, 128 anchors in every cell. In brackets, the fraction
+of each set hidden from the rendering camera.}
+\label{tab:factorial}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrr}
+\toprule
+& hidden face & visible face \\
+\midrule
+8 palpation patches & $+7.91$ \;[0.85] & $+7.31$ \;[0.06] \\
+Uniform coverage & \gd{$+18.24$} \;[0.64] & $+15.57$ \;[0.01] \\
+\midrule
+Spread: uniform $-$ patches & $+10.33$ (115/125) & $+8.26$ (104/124) \\
+Face: hidden $-$ visible, patches & \multicolumn{2}{c}{$+0.60$, $p = 0.47$} \\
+Face: hidden $-$ visible, uniform & \multicolumn{2}{c}{$+2.67$, $p = 9\times10^{-7}$} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\textbf{Spread dominates, and a hand does not choose it.} A $2\times2$ design over the
+42 objects and three seeds, oracle frame, one shared unanchored pass
+(Table~\ref{tab:factorial}), crosses how the 128 anchors spread --- eight palpation
+patches, or uniform coverage --- with the face they lie on. At equal count, uniform
+coverage gains $+10.3$ more than patches on the hidden face and $+8.3$ more on the
+visible face ($p < 10^{-14}$ both): spread alone doubles the gain, and a grasp is
+patches. The face matters little in comparison: nothing between patches ($+0.6 \pm 0.6$,
+$p = 0.47$), $+2.7 \pm 0.5$ in favour of the hidden face under uniform coverage
+($p = 9\times10^{-7}$; that draw is only $64\%$ hidden, so this is a lower bound).
+Where the gain lands follows the same pattern. With visibility decided from the
+rendering camera, hidden-face anchors improve the recall of the hidden side more than
+visible-face anchors do --- $+6.7 \pm 1.0$ under uniform coverage, $+1.2 \pm 0.8$ with
+patches --- and the visible side about equally. The premise thus survives at the level
+of recall, by a margin the spread effect dwarfs. The grasp simulator agrees: three
+strategies placing the same six anchors with $87\%$, $60\%$ and $30\%$ of them hidden
+gain $+1.37$, $+1.73$ and $+2.55$, none separable from the others, and over 45 cases the
+correlation between hidden fraction and gain is $r = -0.001$ (Fig.~\ref{fig:results}b).
+
+\textbf{The depth-camera control.} The visible-face, uniform cell is what a depth
+camera delivers: 128 points on the face the camera sees, none on the face it cannot.
+It gains $+15.6$ --- twice the $+7.9$ of eight tactile patches on the hidden face
+($+7.7 \pm 1.0$ paired, $103/125$, $p = 10^{-13}$). The constraint route therefore
+needs no touch to work; touch would outgain depth only where it covered the object as
+widely, which one grasp does not. Sparse anchors do not complete what vision misses.
+\textbf{They fix global position, scale and orientation of a prior whose frame is
+loose, and for that, covering the surface matters far more than which side they lie
+on.}
 
 \subsection{Why fusion formulations fail}
 \label{sec:fusions}
@@ -675,31 +739,33 @@ was the source of the learned module's original ``$-8$ points'' verdict.
 \section{Limitations}
 % ===========================================================================
 
-\textbf{The missing control.} The visibility result says anchors on the visible face
-work as well as anchors on the hidden face. The visible face is exactly what a depth
-camera measures. The experiment that follows --- replacing tactile contacts with a
-handful of depth points from the visible face, as constraints in
-Eq.~\eqref{eq:loss} --- has not been run. If it gives the same $+3$, then the constraint
-route needs no touch at all; if it gives less, contacts carry something specific.
-Either answer is publishable, and we do not have it.
-
 \textbf{A camera placed in the wrong frame.} Blender's OBJ importer turns each Y-up
 mesh into its Z-up world, $(x, y, z) \mapsto (x, -z, y)$, before the camera at
-$(2.2, -2.2, 1.8)$ renders it. Every occlusion computation placed that camera in the
-mesh's own frame instead, $68^\circ$ from where it rendered: projected from there, the
-reference silhouettes overlap the input images at $0.51$ on average over 42 objects,
-against $0.95$ with the turn applied, and the visible/hidden label differs on $26\%$ of
-the surface. We found it late. The hidden fractions of the grasp strategies and
-Fig.~\ref{fig:results}b are recomputed from the rendering camera; from the misplaced
-one the correlation read $-0.145$, and three cases seemed to leave no anchor on the
-hidden face. Two artefacts keep the error. The palpation sites of
-Sec.~\ref{sec:contactmodel} were restricted to the face hidden from the misplaced
-camera: seen from the rendering camera, $61\%$ of their anchors are hidden ($15$ to
-$90\%$ depending on the object), a mostly hidden set rather than a hidden-face set.
-And the visible/occluded recall split, which no claim relies on, is unreliable. A
-smaller defect adds to it: the renderer normalises objects to a maximum dimension of
-$1.3$ where the occlusion code uses $2.0$; with the camera corrected, it changes the
-label of $3$ of the $45$ grasp cases.
+$(2.2, -2.2, 1.8)$ renders it. Our first occlusion computations placed that camera in
+the mesh's own frame instead, $68^\circ$ from where it rendered: projected from there,
+the reference silhouettes overlap the input images at $0.51$ on average over 42
+objects, against $0.95$ with the turn applied, and the visible/hidden label differs on
+$26\%$ of the surface. We found it late, and redrew. Table~\ref{tab:main},
+Table~\ref{tab:factorial} and the recall of Sec.~\ref{sec:res-anchor} use anchors drawn
+from the rendering camera; the grasp-strategy fractions of Fig.~\ref{fig:results}b are
+recomputed from it (from the misplaced camera the correlation read $-0.145$, and three
+cases seemed to leave no anchor on the hidden face). Two artefacts keep the error. The
+five-object sweeps of Fig.~\ref{fig:results}a and Table~\ref{tab:hand} use palpation
+sites that are $61\%$ hidden from the rendering camera rather than $85\%$; every
+comparison there is between two sets drawn the same way, so the error sits on both
+sides of each difference. And the 42-object campaign reported as a replication in
+Table~\ref{tab:main} used those same sites; that its gains match the redrawn ones to
+$-0.04 \pm 0.70$ says that a mostly hidden set and a hidden-face set behave alike,
+which Table~\ref{tab:factorial} confirms directly. A smaller defect adds to it: the
+renderer normalises objects to a maximum dimension of $1.3$ where the occlusion code
+uses $2.0$; with the camera corrected, it changes the label of $3$ of the $45$ grasp
+cases.
+
+\textbf{Two caveats of the $2\times2$ design.} Its uniform hidden-face draw is only
+$64\%$ hidden, so the face effect under uniform coverage is a lower bound. And on 17 of
+the 126 cases a few anchors fall outside the generator's grid after placement and are
+ignored by the guidance; dropping those cases changes no conclusion (spread
+$+10.5$ / $+8.4$, face $+0.7$ / $+2.7$).
 
 Images are synthetic Blender renders under a single camera and lighting condition.
 Anchors are sampled on the reference mesh --- filtered for reachability, occlusion and
@@ -716,13 +782,15 @@ backbone's authors validate, was out of budget.
 \section{Conclusion}
 % ===========================================================================
 
-A single-view 3D generative prior can be anchored by sparse metric measurements, and
-what limits the anchoring is not the measurements. Their number does not matter over a
-$16\times$ range; their normals do not measurably help; whether they lie on the face
-the camera cannot see does not matter either. What matters is whether they can be
-placed in the frame the generator produces in --- and that frame is drawn with the
-noise, so no estimator can learn it. Estimating it anyway costs 59--74\% of the
-achievable gain, and it is what varies between runs: with the frame frozen, anchoring adds no variance on any of four objects.
+A single-view 3D generative prior can be anchored by sparse metric measurements. Of
+the measurements themselves, one property matters: how widely they cover the surface
+--- uniform coverage gains twice what eight contact patches gain --- and a hand does not
+choose it. Their number does not matter over a $16\times$ range; their normals do not
+measurably help; which face they lie on matters little, and a depth camera's points on
+the visible face outgain tactile patches on the hidden one. What limits a hand's
+measurements, once drawn, is whether they can be placed in the frame the generator
+produces in --- and that frame is drawn with the noise, so no estimator can learn it.
+Estimating it anyway costs 60\% of the achievable gain, and it is what varies between runs: with the frame frozen, anchoring adds no variance on any of four objects.
 
 Fixing the frame by conditioning is possible, and worth three times more than
 constraint anchoring on average, but it is not free: the model treats the reprojected
@@ -734,8 +802,8 @@ The mechanism consistent with all of this is not that measurements complete what
 vision misses. It is that \emph{a few true anchors regularise the output of a
 generative prior} --- position, scale, orientation --- and that the prior's own frame
 is what stands in the way. That is a more modest claim than the one this work set out
-to make, and a more general one: it applies to touch, to depth, and to any sparse
-metric signal a robot can bring.
+to make, and a more general one: it applies to touch, to depth --- which, covering the
+surface, does it better --- and to any sparse metric signal a robot can bring.
 
 \balance
 \begin{thebibliography}{99}

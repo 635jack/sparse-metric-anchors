@@ -91,7 +91,7 @@ def farthest_point_sample(pts, k, seed=0):
 
 
 def palpation_contacts(mesh, n, n_sites=8, finger_radius=0.06, seed=0, n_rays=20000,
-                       return_normals=False):
+                       return_normals=False, face="hidden"):
     """Simule une palpation au lieu d'échantillonner la surface de référence.
 
     Les contacts utilisés jusqu'ici sont des points tirés uniformément sur le maillage
@@ -141,8 +141,11 @@ def palpation_contacts(mesh, n, n_sites=8, finger_radius=0.06, seed=0, n_rays=20
 
     to_cam = CAMERA - pts
     to_cam /= np.linalg.norm(to_cam, axis=1, keepdims=True)
-    occl = (nrm * to_cam).sum(1) < 0
-    pts, nrm = pts[occl], nrm[occl]
+    # face="visible" keeps the impacts that face the camera instead: the same palpation
+    # model on the other side, to separate where the anchors are from how they spread.
+    facing = (nrm * to_cam).sum(1)
+    keep = facing < 0 if face == "hidden" else facing > 0
+    pts, nrm = pts[keep], nrm[keep]
     if len(pts) == 0:
         return None
 
@@ -182,7 +185,20 @@ def main():
     ap.add_argument("--finger_radius", type=float, default=0.06,
                     help="Rayon de la pulpe, en unités du repère normalisé "
                          "(0,06 ~ 6 mm sur un objet de 20 cm).")
+    ap.add_argument("--face", choices=["hidden", "visible"], default="hidden",
+                    help="Face où tombent les sites de palpation. visible écrit "
+                         "palpation<N>visible_<n>.pt.")
+    ap.add_argument("--camera", choices=["misplaced", "render"], default="misplaced",
+                    help="misplaced : la caméra des campagnes publiées, placée dans le "
+                         "repère du maillage, à 68° de celle du rendu. render : la caméra "
+                         "qui a rendu les images, ramenée dans ce repère.")
     args = ap.parse_args()
+    global CAMERA
+    if args.camera == "render":
+        # Import OBJ de Blender (x, y, z) -> (x, -z, y), puis normalisation 1,3 -> 2,0.
+        blender_import = np.array([[1., 0., 0.], [0., 0., -1.], [0., 1., 0.]])
+        CAMERA = blender_import.T @ np.array([2.2, -2.2, 1.8]) * (2.0 / 1.3)
+    print(f"[contacts] caméra {args.camera} : {np.round(CAMERA, 3)}")
 
     out_root = Path(args.out_dir)
     for obj in args.objects:
@@ -198,7 +214,7 @@ def main():
 
         for n in args.densities:
             pal = palpation_contacts(mesh, n, n_sites=args.sites,
-                                     finger_radius=args.finger_radius)
+                                     finger_radius=args.finger_radius, face=args.face)
             if pal is None:
                 print(f"  ! palpation n={n} : pas assez de points accessibles")
                 continue
@@ -208,7 +224,7 @@ def main():
             # réel contrôle (combien de fois toucher), et celle que le balayage
             # explore. Le nombre de points, lui, n'a montré aucun effet.
             torch.save(torch.from_numpy(pal).float().unsqueeze(0),
-                       d / f"palpation{args.sites}_{n}.pt")
+                       d / f"palpation{args.sites}{'' if args.face == 'hidden' else args.face}_{n}.pt")
             print(f"  palpation n={n} : {args.sites} sites, "
                   f"étendue {np.ptp(pal, axis=0).round(2)}")
 

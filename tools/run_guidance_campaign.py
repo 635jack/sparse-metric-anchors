@@ -138,6 +138,14 @@ def score(gt_mesh, gt_pts, vis, thr, pred_path):
     }
 
 
+def _save(path, results):
+    """Écriture atomique : une campagne arrêtée en pleine écriture ne doit pas laisser un
+    JSON tronqué, que la reprise ne saurait plus relire."""
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(json.dumps(results, indent=2))
+    tmp.replace(path)
+
+
 def main():
     ap = argparse.ArgumentParser(description="Campagne guidage : visibilité × densité")
     ap.add_argument("--data_dir", default="data/training_ycb")
@@ -164,6 +172,10 @@ def main():
                     help="Les maillages sont conservés : la campagne précédente ne "
                          "les avait pas gardés, ce qui a imposé de tout régénérer "
                          "pour poser une question nouvelle sur les mêmes tirages.")
+    ap.add_argument("--baseline_from", default=None,
+                    help="Dossier de sortie d'une campagne dont on réutilise les passes "
+                         "non guidées (même objet, même graine) au lieu de les régénérer : "
+                         "deux bras lancés l'un après l'autre partagent alors le même témoin.")
     args = ap.parse_args()
 
     data_dir = Path(args.data_dir)
@@ -213,8 +225,15 @@ def main():
             # Passe 1 sans guidage : témoin apparié, et repère canonique dans lequel
             # les contacts doivent être exprimés. Mutualisée entre les 5 jeux.
             t0 = time.time()
-            ref_obj, _ = sample(0.0, seed, dummy,
-                                Path(args.out_dir) / obj / f"w0_s{seed}")
+            reuse = (Path(args.baseline_from) / obj / f"w0_s{seed}" / f"{obj}.obj"
+                     if args.baseline_from else None)
+            if reuse is not None and reuse.exists():
+                ref_obj = reuse                    # le témoin de l'autre bras
+            else:
+                if reuse is not None:
+                    print(f"  ! témoin {reuse} absent : régénéré", flush=True)
+                ref_obj, _ = sample(0.0, seed, dummy,
+                                    Path(args.out_dir) / obj / f"w0_s{seed}")
             base = score(gt_mesh, gt_pts, vis, thr, ref_obj)
             results[obj][f"baseline_s{seed}"] = base
             print(f"  témoin s{seed} : F@2 {base['f2']:.2f} "
@@ -277,15 +296,15 @@ def main():
                       f"|SDF| {s['sdf_start']:.4f}->{s['sdf_end']:.4f}  "
                       f"[{time.time()-t0:.0f}s]", flush=True)
 
-                out_path.write_text(json.dumps(results, indent=2))
+                _save(out_path, results)
 
           except Exception as e:
             print(f"  !! {obj} graine {seed} abandonné : {type(e).__name__} {e}",
                   flush=True)
             results[obj][f"echec_s{seed}"] = f"{type(e).__name__}: {e}"
-            out_path.write_text(json.dumps(results, indent=2))
+            _save(out_path, results)
 
-    out_path.write_text(json.dumps(results, indent=2))
+    _save(out_path, results)
     print(f"\nTerminé en {(time.time()-t_start)/60:.0f} min → {out_path}")
 
 

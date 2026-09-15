@@ -55,15 +55,17 @@ from their JSON if interrupted, and write results incrementally.
 | Paper | Script | Result file |
 |---|---|---|
 | Sec. III — output pose resampled with noise (~135°) | `tools/pose_determinism.py` | `results/pose_determinism.json` |
-| Table I — constraint anchoring, 42 objects, frame estimated | `tools/run_guidance_campaign.py --combined_frame` | `results/full42_combined.json` |
-| Table I — oracle ceiling (+7.82) | `tools/run_guidance_campaign.py --oracle_frame` | `results/full42_oracle.json` |
+| Table I — constraint anchoring, 42 objects, frame estimated and given, shared unanchored passes | `tools/run_table1_render.sh` (contacts from the rendering camera, then `run_guidance_campaign.py --combined_frame` / `--oracle_frame --baseline_from`) | `results/full42_render_combined.json`, `full42_render_oracle.json`, `results/render_rerun_analysis.json` |
+| Table I — replication, earlier draw (sites from the misplaced camera) | `tools/run_guidance_campaign.py --combined_frame` / `--oracle_frame` | `results/full42_combined.json`, `full42_oracle.json` |
+| Table III — spread × face of the anchor set (2 × 2), and the depth-camera control | `tools/run_visible_control.sh`, `tools/run_factorial_arms.sh`, then `tools/analyze_factorial.py` | `results/full42_render_oracle_{visible,occluded,vispatch}.json`, `results/anchor_set_factorial.json` |
+| Sec. VI-C — recall of the hidden and the visible side, rendering camera | `tools/hidden_side_recall.py` | `results/hidden_side_recall.json` |
 | Table II — depth reprojection into 4 views | `tools/depth_rig.py`, `tools/guided_sampling_dm4.py`, `tools/score_dm4.py` | `results/dm4_resultats.json` |
 | Sec. IV-A — ICP / silhouette / combined placement | `tools/pose_from_silhouette.py`, `tools/pose_selection_study.py` | `results/pose_so3.json`, `pose_silhouette.json`, `pose_combined.json`, `pose_selection.json` |
 | Fig. 2a — 4 / 8 / 16 / 32 sites at 128 anchors | `tools/make_contacts.py --sites N` then the campaign | `results/sites_4.json`, `palpation_combined.json`, `sites_16.json`, `sites_32.json` |
 | Fig. 2a — 32 / 128 / 512 anchors | `tools/run_guidance_campaign.py --sets occluded:32 occluded:512` | `results/guidance_campaign.json` |
 | Fig. 2a, Table IV — hardware cardinality (8 / 4 anchors, normals, noise) | `tools/make_contacts_dh116.py`, `tools/run_dh116_regime.py` | `results/dh116_regime.json` |
 | Fig. 2b — grasp strategies and visibility | `tools/make_contacts_strategies.py`, `tools/run_strategies.py`, then `tools/visibility_render_camera.py` | `results/strategies.json`, `results/visibility_render_camera.json` |
-| Table III — Poisson witness without a generative model | `tools/poisson_temoin.py` | `results/poisson_temoin.json` |
+| Table IV — Poisson witness without a generative model | `tools/poisson_temoin.py` | `results/poisson_temoin.json` |
 | Sec. VI-G — run-to-run variance, frame re-estimated / frozen | `tools/plancher_reproductibilite.py [--gel_pose]` | `results/plancher.json`, `plancher_gel.json` |
 | Sec. VI-G — how much of the floor is the scorer | `tools/scoring_noise.py` | `results/scoring_noise.json` |
 | Sec. IV-A — sign convention of the decoded field | `tools/probe_field_sign.py` | printed |
@@ -115,9 +117,11 @@ before rendering — 68° from where it rendered. `tools/visibility_render_camer
 measures it (silhouette IoU against the input images: 0.95 with the turn, 0.51 without)
 and recomputes the visibility results from the right camera
 (`results/visibility_render_camera.json`): Fig. 2b's correlation is −0.001, not −0.145.
-The campaign scripts keep the misplaced camera so that the published files stay
-reproducible. The palpation sites they drew are 61 % hidden from the rendering camera,
-and the visible / occluded recall columns are unreliable.
+Table I and the 2 × 2 design were then rerun with anchors drawn from the rendering
+camera (`make_contacts.py --camera render`, `data/contacts_render`); the earlier draw,
+61 % hidden from that camera, is kept as a replication. The five-object sweeps still use
+it, and the campaign files' visible / occluded recall columns are unreliable —
+`tools/hidden_side_recall.py` recomputes recall per side from the right camera.
 
 ## Licence
 
